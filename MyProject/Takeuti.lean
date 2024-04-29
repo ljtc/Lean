@@ -5,9 +5,6 @@ variable (α : Type)
 variable (a b c : Prop)
 variable (F : α → Prop)
 
-#check False
-#check Or.intro_left
-
 -- 1)
 example : ¬a ∨ b → (a → b) := by
   intro h ha
