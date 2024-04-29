@@ -21,4 +21,5 @@ Para el tercer paso seguimos las instrucciones en la sección *Creating a Lean P
 
 En principio Lean usa lógica intuicionista, así que empezamos con el ejercicio
 3.9 en la página 20.
-[] Hacer la lista de ejercicios
+
+[x] Hacer la lista de ejercicios
