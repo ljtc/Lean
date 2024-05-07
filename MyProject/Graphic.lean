@@ -11,10 +11,12 @@ class GraphicMonoid (M : Type) extends Monoid M where
 
 /-
 Since a Graphic Monoid is a Monoid,
-then it satisfies the axioms of monoid
+then it satisfies the axioms of monoid.
+Of course, all the theorems for monoids in Mathlib are aviable
+for graphic monoids.
 -/
 example {M : Type} [GraphicMonoid M] (a b c : M) :
-    a * b * c = a * (b * c) := by
+    (a * b) * c = a * (b * c) := by
   rw[mul_assoc]
 
 example {M : Type} [GraphicMonoid M] (a : M) : a * 1 = a := by
@@ -26,8 +28,7 @@ example {M : Type} [GraphicMonoid M] (a : M) : 1 * a = a := by
 theorem elem_idem {M : Type} [GraphicMonoid M] (a : M) : a * a = a := by
   calc a * a
     _ = a * 1 * a := by rw [mul_one]
-    _ = a * 1     := by exact GraphicMonoid.graphic_id a 1
+    _ = a * 1     := by rw [GraphicMonoid.graphic_id a 1]
     _ = a         := by rw [mul_one]
-
 
 end Graphic

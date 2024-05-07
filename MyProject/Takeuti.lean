@@ -2,49 +2,42 @@ import Mathlib.Tactic.Use
 
 section LJ1
 variable (α : Type)
-variable (a b c : Prop)
-variable (F : α → Prop)
+variable (A B C : Prop)
+variable (F G : α → Prop)
 
 -- 1)
-example : ¬a ∨ b → (a → b) := by
+example : ¬A ∨ B → (A → B) := by
   intro h ha
   apply Or.elim h
   . intro hna
-    exact (hna ha).elim
+    exfalso
+    exact hna ha
   . intro hb
     assumption
 
+-- 2)
+example : (∃ x, F x) → ¬∀ y, ¬F y := by
+  intro ⟨x, fx⟩  h
+  exact (h x) fx
+
 -- 3)
-example : a ∧ b → a := by
+example : A ∧ B → A := by
   intro ⟨ha, _⟩
   assumption
 
 -- 4)
-example : a → a ∨ b := by
+example : A → A ∨ B := by
   intro ha
   apply Or.inl ha
 
 -- 5)
-example : (¬a ∨ ¬b) → ¬(a ∧ b) := by
+example : (¬A ∨ ¬B) → ¬(A ∧ B) := by
   intro h ⟨ha, hb⟩
   apply Or.elim h
   . intro hna
     exact hna ha
   . intro hnb
     exact hnb hb
-
-end LJ1
-
-
-section TakeutiEx39
-variable (α : Type)
-variable (A B C : Prop)
-variable (F G : α → Prop)
-
--- 2)
-example : (∃ x, F x) → ¬∀ y, ¬F y := by
-  intro ⟨x, fx⟩  h
-  exact (h x) fx
 
 -- 6)
 example : ¬(A ∨ B) ↔ ¬A ∧ ¬B := by
@@ -122,5 +115,4 @@ example : (∃ x, F x → G x) → (∀ x, F x) → (∃ x, G x) := by
   use x
   exact fg (h x)
 
-
-end TakeutiEx39
+end LJ1
