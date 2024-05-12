@@ -32,4 +32,4 @@ que eliminar esa línea
 
 ## Tarea
 
-[] Hacer los ejercicios de `TLP.lean`
+- [] Hacer los ejercicios de `TLP.lean`
