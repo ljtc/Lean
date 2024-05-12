@@ -3,21 +3,33 @@ Repositorio para compartir los avances que hagamos en el aprendizaje de Lean.
 Para aprender lo básico de la sintaxis estaremos leyendo y haciendo los
 ejercicios de *Proof Theory* de Gaisi Takeuti
 
-## Primera sesión
-Instalamos Lean mediante VSCode. Para esto, una vez que esta instalado VSCode se
-instala la extensión `lean4`. Luego se crea un archivo desde VSCode, digamos
-test.lean, y el editor instalará Lean.
 
-Una vez que Lean esta instalado aparece un símbolo `∀` en la parte superior
-derecha del editor. En ese símbolo está la documentación en *Open Docview*.
-(También es posible con la combinación Ctrl+Shift+P, o en Mac Cmd+Shift+P, y
-empezar a escribir "Docview".) Tiene varios manuales, por el momento hay que
-abrir *Mathematics in Lean* y seguir las indicaciones para descargar la librería
-de matemáticas:
-1. Instalar VSCode y Lean4 (está ya debería de estar en este punto),
-2. Instalar `git`,
-3. Obtener la librería de matemáticas.
-Para el tercer paso seguimos las instrucciones en la sección *Creating a Lean Project*
+## Instalación
 
-En principio Lean usa lógica intuicionista, así que empezamos con el ejercicio
-3.9 en la página 20.
+1. Instalar [VS Code](https://code.visualstudio.com/)
+2. Buscar e instalar [`lean4`] (https://marketplace.visualstudio.com/items?itemName=leanprover.lean4) en las extensiones de VS Code
+3. Después de instalar `lean4` se abrirá una guía *Lean 4 Setup*. Para acceder a esa guía se puede dar click en el símbolo ∀ de arriba a la derecha, luego en *Documentation* > *Setup: Show Setup Guide*.
+4. Hay que hacer lo que dice la guía. Sobretodo el paso que dice *Install Required Dependencies* y el siguiente, *Install Lean Version Manager*.
+5. Para usar la biblioteca de matemáticas es suficiente dar clic en el símbolo ∀ y luego *New Project* > *Project: Create Project Using Mathlib*
+
+Como es buena idea leer  *Mathematics in Lean*, se recomienda bajar el libro ya que contiene archivos con ejemplos y ejercicios.
+
+```
+git clone https://github.com/leanprover-community/mathematics_in_lean.git
+cd mathematics_in_lean
+lake exe cache get
+```
+
+Con esas tres instrucciones se creará una carpeta `mathematics_in_lean` dentro de ella habrá otra llamada `MIL`. Esta es la carpeta con los ejemplos y ejercicios. No se debe trabajar directamente en ella. Se debe hacer una copia y trabajar sobre la copia.
+
+Todos los archivos importan una biblioteca especial
+```
+import MIL.Common
+```
+Esta biblioteca, que parece ser para el libro, sólo causa errores así que hay
+que eliminar esa línea
+
+
+## Tarea
+
+[] Hacer los ejercicios de `TLP.lean`
