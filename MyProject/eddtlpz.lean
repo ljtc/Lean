@@ -114,3 +114,5 @@ example : p ∨ ¬p :=
 fun pp => pp.elim (fun h => a) (fun hh => a)
 
 example : (((p → q) → p) → p) := sorry
+
+s
