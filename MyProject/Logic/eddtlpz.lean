@@ -98,7 +98,15 @@ example: ¬(A ↔ ¬A):=
 /-LOGICA CLASICA-/
 open Classical
 
-
+/-
+Hint:
+Usa Or.elim (em p)
+Por ejemplo, en el primero intenta algo así
+example : (A → B ∨ C) → ((A → B) ∨ (A → C)) :=
+  fun ABC => Or.elim (Classical.em A)
+    (fun hA => dem suponiendo que se vale A)
+    (fun hnA => dem suponiendo que se vale ¬A)
+-/
 
 example : (A → B ∨ C) → ((A → B) ∨ (A → C)) :=
   fun ABC => fun a => a
@@ -109,6 +117,9 @@ example : ¬(p → q) → p ∧ ¬q := sorry
 example : (p → q) → (¬p ∨ q) := sorry
 
 example : (¬q → ¬p) → (p → q) := sorry
+
+--Hint:
+#check em p
 
 example : p ∨ ¬p :=
 fun pp => pp.elim (fun h => a) (fun hh => a)
