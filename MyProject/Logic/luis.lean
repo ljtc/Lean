@@ -217,20 +217,17 @@ example : (p → q ∨ r) → ((p → q) ∨ (p → r)) := by
 
 example : ¬(p ∧ q) → ¬p ∨ ¬q := by
   intro h
-  by_contra h'
-  push_neg at h'
+  by_contra! h'
   exact h h'
 
 example : ¬(p → q) → p ∧ ¬q := by
   intro h
-  by_contra h'
-  push_neg at h'
+  by_contra! h'
   exact h h'
 
 example : (p → q) → (¬p ∨ q) := by
   intro h
-  by_contra h'
-  push_neg at h'
+  by_contra! h'
   exact h'.2 (h h'.1)
 
 example : (¬q → ¬p) → (p → q) := by
@@ -238,15 +235,16 @@ example : (¬q → ¬p) → (p → q) := by
   by_contra hnq
   exact (h hnq) hp
 
+--Mathlib.Tactic forces the sintax Classical.em, otherwise it is ambiguous
+example : p ∨ ¬p := Classical.em p
+
 example : p ∨ ¬p := by
-  by_contra h
-  push_neg at h
+  by_contra! h
   exact h.1 h.2
 
 example : (((p → q) → p) → p) := by
   intro h
-  contrapose h
-  push_neg
+  contrapose! h
   have : p → q := by
     intro hp
     exfalso
