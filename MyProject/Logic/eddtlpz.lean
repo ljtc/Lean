@@ -119,7 +119,7 @@ example : (p → q) → (¬p ∨ q) := sorry
 example : (¬q → ¬p) → (p → q) := sorry
 
 --Hint:
-#check em p
+#check Classical.em p
 
 example : p ∨ ¬p :=
 fun pp => pp.elim (fun h => a) (fun hh => a)
