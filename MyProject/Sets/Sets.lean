@@ -96,8 +96,8 @@ example : s ∩ (t ∪ u) ⊆ (s ∩ t) ∪ (s ∩ u) := sorry
 
 example : (s ∩ t) ∪ (s ∩ u) ⊆ s ∩ (t ∪ u) := sorry
 
-#check Set.diff_eq
-#check Set.mem_diff
+#check diff_eq
+#check mem_diff
 example : (s \ t) \ u ⊆ s \ (t ∪ u) := sorry
 
 
@@ -130,8 +130,51 @@ example : s \ t ∪ t = s ∪ t := sorry
 
 example : s \ t ∪ t \ s = (s ∪ t) \ (s ∩ t) := sorry
 
-#check Set.mem_compl_iff
+#check mem_compl_iff
 example : s ⊆ t ↔ s ∩ tᶜ = ∅ := sorry
+
+#check mem_inter_iff
+example : s \ (t ∪ u) = (s \ t) ∩ (s \ u) := sorry
+
+example : s \ (t ∩ u) = (s \ t) ∪ (s \ u) := sorry
+
+
+end
+
+
+section
+--Arbitrary unions and intersections
+variable {α I : Type*}
+variable (A B : I → Set α)
+variable (s : Set α)
+
+open Set
+
+/-
+Hint:
+Translate from sets to logic usin rw [...]
+-/
+#check mem_inter_iff
+#check mem_iUnion
+example : (s ∩ ⋃ i, A i) = ⋃ i, A i ∩ s := sorry
+
+#check mem_iInter
+example : (⋂ i, A i ∩ B i) = (⋂ i, A i) ∩ ⋂ i, B i := sorry
+
+/-
+Hint:
+Use by_cases xs : x ∈ s at an appropiate point
+-/
+example : (s ∪ ⋂ i, A i) = ⋂ i, A i ∪ s := sorry
+
+
+#check mem_diff
+#check mem_iInter
+#check mem_iUnion
+example (j : I) : ⋂ i, s \ A i ⊆ s \ ⋃ i, A i := sorry
+
+example : s \ ⋃ i, A i ⊆ ⋂ i, s \ A i := sorry
+
 
 
 end
