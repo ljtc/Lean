@@ -28,6 +28,10 @@ example (h : s ⊆ t) : s ∩ u ⊆ t ∩ u := by
   . exact h xs
   . assumption
 
+example (h: s ⊆ t): s ∩ u ⊆ t ∩ u := λ _ => λ xinscapu => ⟨(h xinscapu.1) , xinscapu.2⟩
+
+example (h: s⊆ t) : s∪ w ⊆ t ∪ w := λ _ => λ xinunion => Or.elim xinunion (λ h1=> Or.inl (h h1)) (λ h2 => Or.inr (h2))
+
 
 /-
 Useful stuff to deal with sets
