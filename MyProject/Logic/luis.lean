@@ -306,10 +306,14 @@ example (a : α) : r → (∃ x : α, r) := by
   exact ⟨a, hr⟩
 
 example : (∃ x, p x ∧ r) ↔ (∃ x, p x) ∧ r := by
+  exact exists_and_right
+
+example : (∃ x, p x ∧ r) ↔ (∃ x, p x) ∧ r := by
   constructor
   . intro ⟨a, h⟩
     constructor
-    . exact ⟨a, h.1⟩
+    . use a
+      exact h.1
     . exact h.2
   . intro ⟨⟨a, hp⟩, hr⟩
     exact ⟨a, ⟨hp, hr⟩⟩
