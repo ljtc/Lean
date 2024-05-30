@@ -1,5 +1,7 @@
 import Mathlib.Tactic
-section
+import Mathlib.Data.Set.Defs
+
+section log
 variable (α : Type)
 variable (w : α)
 variable (p q r : Prop)
@@ -215,8 +217,91 @@ También es posible combinar by_contra con push_neg
 example : p ∧ q := by
   by_contra! h
   sorry
-end
+
+end log
 
 
 
 --Conjuntos
+section sets
+variable {α I : Type*}
+variable (A : I → Set α)
+variable (a b c : Set α)
+open Set
+/-
+Una estrategia es usar las definiciones para cabiar las hipótesis y el
+goal de manera que sean proposiciones de la forma x ∈ s ...
+-/
+-- operaciones a lo más binarias
+#check subset_def
+#check inter_def
+#check mem_inter_iff
+#check union_def
+#check mem_union
+#check mem_setOf
+#check diff_eq
+#check mem_diff
+#check mem_compl_iff
+/-
+Para usar las definiciones se usa rw [...]
+-/
+example : a ⊆ b := by
+  rw [subset_def]
+  sorry
+
+example (x : α) : x ∈ a ∩ b := by
+  rw [mem_inter_iff]
+  sorry
+
+example (x : α) : x ∈ a ∪ b := by
+  rw [mem_union]
+  sorry
+
+example (x : α) : x ∈ a \ b := by
+  rw [mem_diff]
+  sorry
+
+example (x : α) : x ∈ aᶜ := by
+  rw [mem_compl_iff]
+  sorry
+
+/-
+Es posible no usar las definiciones de las operaciones conjuntisatas y
+hacer las demostraciones usando que sabemos qué significan
+-/
+example (xa : x ∈ a) (h : a ⊆ b) : x ∈ b := by
+  apply h xa
+/-
+Una consecuencia es que es posible hacer estas demostraciones en
+modo término
+-/
+
+-- igualdad
+/-
+Las proposiciones que afirman la igualdad de dos conjuntos se demuestran
+usando el axioma de extensionalidad, en Lean se abrevia con ext
+-/
+#check ext
+example : a = b := by
+  ext x
+  sorry
+
+-- operaciones arbitrarias
+/-
+Una intersección arbitraria está muy relacionada con un universal y una
+unión arbitraria con un existencial. En las definiciones de abajo aparece
+esta relación
+-/
+#check mem_iInter
+#check mem_iUnion
+
+example (x : α) : x ∈ ⋂ i, A i := by
+  rw [mem_iInter]
+  sorry
+
+example (x : α) : x ∈ ⋃ i, A i := by
+  rw [mem_iUnion]
+  sorry
+
+
+end sets
