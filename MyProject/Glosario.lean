@@ -67,7 +67,7 @@ example : p ∨ q := by
   right
   sorry
 
-/-
+/-Así, modifica el goal a False
 Un existencial se puede romper con use. Modica el goal para demostrar que
 la fórmula se satisface con el término que se le paso a use. Requiere
 import Mathlib.Tactic.Use
@@ -263,6 +263,23 @@ example (x : α) : x ∈ a \ b := by
 
 example (x : α) : x ∈ aᶜ := by
   rw [mem_compl_iff]
+  sorry
+/-
+Un poco más general, rw [...] puede cambiar el goal o las hipótesis usando
+igualdades o equivalencias. El cambio es del tŕmino de la izquierda de
+la igualdad al término de la derecha. Para hacerlo al revés se debe
+usar con rw [<-...]
+-/
+example (h : a = b) : a = c := by
+  rw [h]
+  sorry
+
+example (h : a = b) : b = c := by
+  rw [<-h]
+  sorry
+
+example (p q r : Prop) (h : p ↔ q) : p → r := by
+  rw [h]
   sorry
 
 /-
