@@ -1,8 +1,8 @@
 import Mathlib.Tactic.Use
-import Mathlib.Data.Nat.Basic
-import Mathlib.Data.Nat.Parity
+--import Mathlib.Data.Nat.Basic
+--import Mathlib.Data.Nat.Parity
 import Mathlib.Data.Real.Basic
-import MIL.Common
+--import MIL.Common
 
 
 section LJ1
@@ -35,6 +35,7 @@ example {x y : ℝ} (h0 :x ≤ y)(h1 : ¬ y ≤ x) : x ≤ y ∧ x ≠ y := by
 example : A → A := fun ha => ha
 
 #check 2
+
 
 -- ex 10
 example : (A → ¬ B) → (B → ¬ A) :=
@@ -69,11 +70,11 @@ example : (∀ x , F x ∧ G x) ↔ (∀ x , F x) ∧ (∀ x , G x) := by
 example : (∃ x, F x → G x) → ((∀ x, F x )→ ∃ x, G x) :=
   λ ⟨w,hfg⟩ =>
     λ htf => ⟨w,hfg (htf w)⟩
-/-
+
 example : (∃ x, F x → G x) → ((∀ x, F x )→ ∃ x, G x) :=
-  λ hefg =>
-    λ htf => Exists.intro hefg.1 (hefg.2 (htf hefg.1))
--/
+  λ ⟨w,hfg⟩ =>
+    λ htf => Exists.intro w (hfg (htf w))
+
 example : (∃ x, F x → G x) → ((∀ x, F x )→ ∃ x, G x) := by
   intro ⟨w, h⟩ h'
   -- h' w dem F w
@@ -231,20 +232,40 @@ example : (∃ x, F x → B) → (∀ x, F x) → B := by
   exact (h (u w))
 
 -- ejercicios 3.10
---ex 1.1
---example : ¬ ¬ (A → B) :=
+--ex 1
 
---ex 2.2
+example (hnnab : ¬ ¬ (A → B)) : A → ¬ ¬ B :=
+  λ ha =>
+    λ hnb =>
+      hnnab (λ hab => hnb (hab ha))
 
-example : ¬ ¬ (A → B) → (A → B) :=
+example (hnnab : ¬ ¬ (A → B)) : A →  ¬ ¬ B := by
+  intro ha hnb
+  exact hnnab (λ hab => hnb (hab ha))
+
+
+
+
+
+
+--ex 2
+
+example (hdnb :(¬ ¬ B) → B) : ¬ ¬ (A → B) → (A → B) :=
   λ hnnab =>
     λ ha =>
-      hnnab (λ hab => )
+      have l1 : B :=
+      hdnb (λ hnb => hnnab (λ hab => hnb (hab ha) ))
+      l1
 
-example : ¬ ¬ (A → B) → (A → B) := by
-  contrapose!
-  intro h
-  exact h
+example (hdnb :(¬ ¬ B) → B) : ¬ ¬ (A → B) → (A → B) := by
+  intro hnnab ha
+  have l1 : B :=
+    hdnb (λ hnb => hnnab (λ hab => hnb (hab ha) ))
+  exact l1
+
+
+
+
 
 --ex 3
 
@@ -578,10 +599,8 @@ example : ((p ∨ q) → r) ↔ (p → r) ∧ (q → r) := by
     case inr hq =>
       exact (hpr_qr.2 hq)
 
-/-
-example : ((p ∨ q) → r) → (p → r) ∨ (q → r)
--/
---
+
+
 
 example : ¬ (p ∨ q) ↔ ¬ p ∧ ¬ q :=
   ⟨fun hnpq => ⟨fun hp => (hnpq (Or.inl hp)),fun hq => (hnpq (Or.inr hq))⟩,
@@ -711,22 +730,6 @@ example : (p → q) → (¬ q → ¬ p) := by
 
 --
 
---theorem p_iff_nop (p : Prop) : ¬ (p ↔ ¬ p) :=
-/-
-example (p : Prop) : ¬ (p ↔ ¬ p) :=
--/
-/-
-example : ¬ (p ↔ ¬ p) := by
-  intro hpnp
-  exact hpnp.mpr hpnp.mp
--/
-/-
-example (p : Prop) : ¬ (p ↔ ¬ p) := by
-  intro hpnp
-  cases hpnp
-  case intro hp_np hnp_p =>
-    apply hp_np
--/
 
 
 example {x y : ℝ} (h : x ≤ y ∧ x ≠ y) : ¬y ≤ x := by
@@ -983,8 +986,123 @@ section ClassicalQ
 
 open Classical
 
-variable (α : Prop) (p q : α → Prop)
+variable (α : Type) (p q : α → Prop)
 variable (r : Prop)
+
+theorem neg_y  {r t : Prop} : ¬ (r ∨ t) ↔ ¬ r ∧ ¬ t :=
+  ⟨λ hnab =>
+    (Or.elim (Classical.em r)
+      (λ ha => False.elim (hnab (Or.inl ha)) )
+      (λ hna => (Or.elim (Classical.em t))
+        (λ hb => False.elim (hnab (Or.inr hb)))
+        (λ hnb => ⟨hna,hnb⟩))),
+  λ hna_nb =>
+    λ hab =>
+      Or.elim hab
+        (λ ha => False.elim (hna_nb.1 ha) )
+        (λ hb => False.elim (hna_nb.2 hb))⟩
+
+
+theorem contrap {s t : Prop} : (s → t) ↔ (¬ t → ¬ s) :=
+  ⟨λ hst =>
+    λ hnt =>
+      λ hs =>
+        False.elim (hnt (hst hs)),
+  λ hntns =>
+    λ hs =>
+      Or.elim (Classical.em t)
+        (λ ht => ht)
+        (λ hnt => False.elim ((hntns hnt) hs))⟩
+
+theorem cont {s t : Prop} : ¬ (s → t) ↔ (s ∧ ¬ t) :=
+  ⟨λ hnst =>
+    Or.elim (Classical.em s)
+      (λ hs => ⟨hs,λ ht => hnst (λ _ => ht)⟩)
+      (λ hns => False.elim (hnst (λ hs => absurd hs hns )) ),
+  λ ⟨hs,hnt⟩ =>
+    λ hst =>
+      False.elim (hnt (hst hs))⟩
+
+example : ¬ (∃ x, p x) ↔ ∀ x, ¬ p x := by
+  constructor
+  . intro hnep w hp
+    exact hnep ⟨w,hp⟩
+  . intro htnp ⟨x,hpx⟩
+    exact (htnp x) hpx
+
+theorem ce_neg {α : Type} {s : α → Prop} : (¬ (∃ x, s x)) ↔ ∀ x, ¬ s x :=
+  ⟨λ henp =>
+    λ x =>
+      λ hp =>
+        (henp ⟨x,hp⟩),
+  λ htnp =>
+    λ ⟨x,hpx⟩ =>
+      (htnp x) hpx⟩
+
+example : ¬ ¬ s ↔ s := by
+  constructor
+  . intro hnns
+    rcases Classical.em s with hs | hns
+    . exact hs
+    . exfalso
+      exact hnns hns
+  . intro hs hns
+    exact hns hs
+
+theorem dob_neg {s : Prop} : ¬ ¬ s ↔ s :=
+  ⟨λ hnns =>
+    Or.elim (Classical.em s)
+      (λ hs => hs)
+      (λ hns => False.elim (hnns hns)),
+  λ hs =>
+    λ hns =>
+      hns hs⟩
+
+#check dob_neg
+
+example :  ¬ (∃ x, ¬ p x) ↔ ∀ x, p x := by
+  constructor
+  . intro h
+    have h1 : ∀ x, p x:=
+      λ x =>
+        have h2 : p x :=
+          dob_neg.mp (((ce_neg.mp) h) x)
+        h2
+    exact h1
+  . intro g ⟨x,npx⟩
+    exact npx (g x)
+
+theorem neg_f {s : α → Prop} : ¬ (∀ x, s x) → ∃ x, ¬ s x :=
+  byContradiction
+    (λ h1 =>
+      have h2 : ∀ x, s x :=
+        λ x =>
+          have h3 : s x :=
+            dob_neg.mp ((ce_neg.mp (cont.mp h1).2) x)
+          h3
+      (cont.mp h1).1 h2)
+
+theorem cf_neg {α : Type} {s : α → Prop} : ¬ (∀ x, s x) ↔ ∃ x, ¬ s x :=
+  ⟨byContradiction
+    (λ h1 =>
+      have h2 : ∀ x, s x :=
+        λ x =>
+          have h3 : s x :=
+            dob_neg.mp ((ce_neg.mp (cont.mp h1).2) x)
+          h3
+      (cont.mp h1).1 h2),
+  λ ⟨x,hnsx⟩ =>
+    λ hts =>
+      hnsx (hts x)⟩
+
+example : ¬ (∀ x, p x) ↔ ∃ x, ¬ p x := by
+  constructor
+  . contrapose!
+    intro htp w
+    exact htp w
+  . intro ⟨x,npx⟩ htp
+    exact npx (htp x)
+
 
 --
 example : (∃ _ : α, r) → r :=
@@ -1006,14 +1124,19 @@ example (a : α) : r → (∃ _ : α, r) := by
   exact ⟨a,hr⟩
 
 --
+example : (∃ x, p x) ∧ r → (∃ x, p x ∧ r) :=
+  λ ⟨⟨x,px⟩,hr⟩ =>
+    ⟨x,⟨px,hr⟩⟩
+
+
 example : (∃ x, p x ∧ r) ↔ (∃ x, p x) ∧ r :=
   Iff.intro
-  (fun hepr => And.intro (Exists.intro hepr.1 (((hepr.2).1))) ((hepr.2).2))
-  (fun hep_r => Exists.intro (hep_r.1).1 (And.intro ((hep_r.1).2) (hep_r.2)))
+  (fun ⟨x,pxr⟩ => And.intro (Exists.intro (x) (pxr.1)) (pxr.2))
+  (fun ⟨⟨hx,hpx⟩,hr⟩ => Exists.intro hx (And.intro (hpx) (hr)))
 
 example : (∃ x, p x ∧ r) ↔ (∃ x, p x) ∧ r :=
   ⟨fun ⟨w,hp,hr⟩ => ⟨⟨w,hp⟩,hr⟩,
-  fun ⟨hep,hpr⟩ => ⟨hep.1,hep.2,hpr⟩⟩
+  fun ⟨⟨hx,hpx⟩,hpr⟩ => ⟨hx,hpx,hpr⟩⟩
 
 example : (∃ x, p x ∧ r) ↔ (∃ x, p x) ∧ r :=  by
   constructor
@@ -1028,10 +1151,10 @@ example : (∃ x, p x ∧ r) ↔ (∃ x, p x) ∧ r :=  by
 
 example : (∃ x, p x ∨ q x) ↔ (∃ x, p x) ∨ (∃ x, q x) :=
   Iff.intro
-  (fun hepq => Or.elim hepq.2
-    (fun hep => Or.inl (Exists.intro hepq.1 hep)) (fun heq => Or.inr (Exists.intro hepq.1 heq)))
+  (fun ⟨x,pqx⟩ => Or.elim pqx
+    (fun hep => Or.inl (Exists.intro x hep)) (fun heq => Or.inr (Exists.intro x heq)))
   (fun hep_eq => Or.elim hep_eq
-    (fun hep => Exists.intro hep.1 (Or.inl hep.2)) (fun heq => Exists.intro heq.1 (Or.inr heq.2)))
+    (fun ⟨x,px⟩ => Exists.intro x (Or.inl px)) (fun ⟨x,qx⟩ => Exists.intro x (Or.inr qx)))
 
 example : (∃ x, p x ∨ q x) ↔ (∃ x, p x) ∨ (∃ x, q x) :=
   ⟨fun ⟨w,hpq⟩ => Or.elim hpq (fun hp => Or.inl ⟨w,hp⟩) (fun hq => Or.inr ⟨w,hq⟩),
@@ -1048,14 +1171,16 @@ example : (∃ x, p x ∨ q x) ↔ (∃ x, p x) ∨ (∃ x, q x) := by
   . intro hep_eq
     cases hep_eq
     case inl hep =>
-      exact ⟨hep.1,Or.inl hep.2⟩
+      obtain ⟨x,px⟩:=hep
+      exact ⟨x,Or.inl px⟩
     case inr heq =>
-      exact ⟨heq.1,Or.inr heq.2⟩
+      obtain ⟨x,qx⟩:= heq
+      exact ⟨x,Or.inr qx⟩
 
 --
 
 example : (∀ x, p x) ↔ ¬ (∃ x, ¬ p x) :=
-  ⟨fun htp => fun henp => (henp.2 (htp henp.1)),
+  ⟨fun htp => fun ⟨x,npx⟩ => (npx (htp x)),
   fun hnenp =>
     fun w =>
       Or.elim (Classical.em (p w))
@@ -1065,7 +1190,7 @@ example : (∀ x, p x) ↔ ¬ (∃ x, ¬ p x) :=
 
 example : (∀ x, p x) ↔ ¬ (∃ x, ¬ p x) :=
   Iff.intro
-  (fun htp => fun henp => (henp.2 (htp henp.1)))
+  (fun htp => fun ⟨x,npx⟩ => (npx (htp x)))
   (fun hnenp =>
     fun w =>
       Or.elim (Classical.em (p w))
@@ -1086,25 +1211,40 @@ example : (∀ x, p x) ↔ ¬ (∃ x, ¬ p x) := by
 
 
 --
+example : (∃ x, p x) ↔ ¬ (∀ x, ¬ p x) :=
+  ⟨λ ⟨hx,hpx⟩ =>
+    λ htnp =>
+      (htnp hx) hpx,
+  λ hntnp =>
+    have ⟨x,hnnp⟩ : ∃ x, ¬ ¬ p x :=
+      (cf_neg.mp hntnp)
+    have ⟨x,hp⟩ : ∃ x, p x :=
+      ⟨x,dob_neg.mp hnnp⟩
+    ⟨x,hp⟩⟩
 
-/-
 example : (∃ x, p x) ↔ ¬ (∀ x, ¬ p x) :=
   Iff.intro
-  (fun hep =>
+  (fun ⟨hx,hpx⟩ =>
     fun htnp =>
-      False.elim ((htnp hep.1) hep.2))
+      (htnp hx) hpx)
   (fun hntnp =>
-    Exists.intro () ())
+    have ⟨x,hnnp⟩ : ∃ x, ¬ ¬ p x :=
+      (cf_neg.mp hntnp)
+    have ⟨x,hp⟩ : ∃ x, p x :=
+      ⟨x,dob_neg.mp hnnp⟩
+    Exists.intro (x) (hp))
 
 example : (∃ x, p x) ↔ ¬ (∀ x, ¬ p x) := by
   constructor
-  . intro hep htnp
-    exact ((htnp hep.1) hep.2)
+  . intro ⟨hx,hpx⟩ htnp
+    exact ((htnp hx) hpx)
   . intro hntnp
-    exfalso
-    apply hntnp
-    intro w hp
--/
+    have ⟨x,hnnp⟩ : ∃ x, ¬ ¬ p x :=
+      (cf_neg.mp hntnp)
+    have ⟨x,hp⟩ : ∃ x, p x :=
+      ⟨x,dob_neg.mp hnnp⟩
+    exact ⟨x,hp⟩
+
 
 --
 
@@ -1114,21 +1254,21 @@ example : (¬ ∃ x, p x) ↔ (∀ x, ¬ p x) :=
       fun hp =>
         (hnep ⟨w,hp⟩),
   fun htnp =>
-    fun hep => ((htnp hep.1) hep.2)⟩
+    fun ⟨x,hp⟩ => ((htnp x) hp)⟩
 
 example : (¬ ∃ x, p x) ↔ (∀ x, ¬ p x) := by
   constructor
   . intro hnep w hp
     exact (hnep ⟨w,hp⟩)
-  . intro htnp hep
-    exact (htnp hep.1) hep.2
+  . intro htnp ⟨x,hp⟩
+    exact (htnp x) hp
 
 
 --
 
 example : (¬ ∀ x, p x) ↔ (∃ x, ¬ p x) :=
   ⟨λ hntp =>
-    ⟨,⟩,
+    cf_neg.mp hntp,
   λ ⟨w,hnp⟩ =>
     λ htp =>
       hnp (htp w)⟩
@@ -1167,15 +1307,28 @@ example (a : α) : (∃ x, p x → r) ↔ (∀ x, p x) → r :=
   ⟨λ ⟨w,hpr⟩ =>
     λ htp =>
       hpr (htp w),
-  λ htpr =>
-    ⟨a, λ hp => (htpr (λ _ => hp))⟩⟩
+  byContradiction (λ h1 =>
+    have l1 : ∀ x, p x :=
+      λ w =>
+        (cont.mp ((ce_neg.mp (cont.mp h1).2) w)).1
+    have l2 : ¬ r :=
+      (cont.mp ((ce_neg.mp (cont.mp h1).2) a)).2
+    l2 ((cont.mp h1).1 l1))⟩
+
 
 example (a : α) : (∃ x, p x → r) ↔ (∀ x, p x) → r := by
   constructor
   . intro ⟨w,hpr⟩ htp
     exact hpr (htp w)
-  . intro htpr
-    exact ⟨a,λ hp => (htpr (fun _ => hp))⟩
+  . intro htp_r
+    by_contra! htpnr
+    have lem : ∀ x, p x := by
+      intro w
+      exact (htpnr w).1
+    exact (htpnr a).2 (htp_r lem)
+
+
+
 
 --
 
@@ -1183,15 +1336,27 @@ example (a : α) : (∃ x, r → p x) ↔ (r → ∃ x, p x) :=
   ⟨λ ⟨w,hrp⟩ =>
     λ hr =>
       ⟨w,(hrp hr)⟩,
-  λ hr_ep =>
-    ⟨a,λ hr => (hr_ep hr).2⟩⟩
+  byContradiction (λ h1 =>
+    have ⟨l1,l2⟩ : (r → ∃ x, p x) ∧ ∀ x, r ∧ ¬ p x:=
+      have l3 : ∀ x, r ∧ ¬ p x:=
+        λ w =>
+          cont.mp ((ce_neg.mp (cont.mp h1).2) w)
+      ⟨(cont.mp h1).1,l3⟩
+    have ⟨x,px⟩ : ∃ x, p x:=
+      l1 (l2 a).1
+    (l2 x).2 px )⟩
 
 example (a : α) : (∃ x, r → p x) ↔ (r → ∃ x, p x) := by
   constructor
   . intro ⟨w,hrp⟩ hr
     exact ⟨w,(hrp hr)⟩
   . intro hr_ep
-    exact ⟨a, λ hr => (hr_ep hr).2⟩
+    by_contra h'
+    push_neg at h'
+    obtain ⟨w,pw⟩:= (hr_ep (h' a).1)
+    exact (h' w).2 pw
+
+
 
 --
 
@@ -1260,28 +1425,29 @@ example : α → ((∀ _ : α, r) ↔ r) := by
     exact hr
 
 --
-theorem contrap {s t : Prop} : (s → t) ↔ (¬ t → ¬ s) :=
-  ⟨λ hst =>
-    λ hnt =>
-      λ hs =>
-        False.elim (hnt (hst hs)),
-  λ hntns =>
-    λ hs =>
-      Or.elim (Classical.em t)
-        (λ ht => ht)
-        (λ hnt => False.elim ((hntns hnt) hs))⟩
 
-theorem cont {s t : Prop} : ¬ (s → t) ↔ (s ∧ ¬ t) :=
-  ⟨λ hnst =>
-    Or.elim s
-      (λ hs => ⟨hs,λ ht => hnst (λ _ => ht)⟩)
-      (λ hns => False.elim (hnst (λ hs => absurd hs hns )) ),
-  λ ⟨hs,hnt⟩ =>
-    λ hst =>
-      False.elim (hnt (hst hs))⟩
+
+open Classical
+variable (p : α → Prop)
+
+example (h : ¬ ∀ x, ¬ p x) : ∃ x, p x :=
+  byContradiction
+    (fun h1 : ¬ ∃ x, p x =>
+      have h2 : ∀ x, ¬ p x :=
+        fun x =>
+        fun h3 : p x =>
+        have h4 : ∃ x, p x := ⟨x, h3⟩
+        show False from h1 h4
+      show False from h h2)
+
 
 example : (∀ x, p x ∨ r) ↔ (∀ x, p x) ∨ r :=
-  ⟨contra λ htpr =>,
+  ⟨byContradiction (λ h1 =>
+    have ⟨h1,⟨x,hnp⟩,h3⟩ : (∀ x, p x ∨ r) ∧ (∃ x, ¬ p x) ∧ ¬ r :=
+      ⟨(cont.mp h1).1,⟨cf_neg.mp (neg_y.mp (cont.mp h1).2).1,(neg_y.mp (cont.mp h1).2).2⟩ ⟩
+    Or.elim (h1 x)
+      (λ hpx => hnp hpx)
+      (λ hr => h3 hr)),
   λ htp_r =>
     λ w =>
       Or.elim htp_r
@@ -1289,6 +1455,7 @@ example : (∀ x, p x ∨ r) ↔ (∀ x, p x) ∨ r :=
           Or.inl (htp w))
         (λ hr =>
           Or.inr hr)⟩
+
 
 example : (∀ x, p x ∨ r) ↔ (∀ x, p x) ∨ r := by
   constructor
