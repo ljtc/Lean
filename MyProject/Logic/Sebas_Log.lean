@@ -1039,7 +1039,7 @@ theorem ce_neg {α : Type} {s : α → Prop} : (¬ (∃ x, s x)) ↔ ∀ x, ¬ s
     λ ⟨x,hpx⟩ =>
       (htnp x) hpx⟩
 
-example : ¬ ¬ s ↔ s := by
+example {s : Prop} : ¬ ¬ s ↔ s := by
   constructor
   . intro hnns
     rcases Classical.em s with hs | hns
