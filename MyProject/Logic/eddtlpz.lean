@@ -108,8 +108,18 @@ example : (A → B ∨ C) → ((A → B) ∨ (A → C)) :=
     (fun hnA => dem suponiendo que se vale ¬A)
 -/
 
+theorem hola : ¬A → A → B :=
+  fun na => fun a => False.elim (na a)
+
+theorem jaja: A → A ∨ B:=
+fun a => Or.inl a
+
+theorem adios : ¬A → (A → B) ∨ (A → C) :=
+  fun na => ((fun na => fun a => False.elim (na a)) (na)).inl
+
 example : (A → B ∨ C) → ((A → B) ∨ (A → C)) :=
-  fun ABC => fun a => a
+  fun ABC => (em A).elim (fun a => (ABC a).elim (fun b => Or.inl (fun _ => b)) (fun c => Or.inr (fun d => c))) (fun na =>  (Or.inl (fun na => fun a => False.elim (na a))) ((Or.inr (fun na => fun a => False.elim (na a)))) )
+
 example : ¬(p ∧ q) → ¬p ∨ ¬q := sorry
 
 example : ¬(p → q) → p ∧ ¬q := sorry
@@ -125,5 +135,3 @@ example : p ∨ ¬p :=
 fun pp => pp.elim (fun h => a) (fun hh => a)
 
 example : (((p → q) → p) → p) := sorry
-
-s

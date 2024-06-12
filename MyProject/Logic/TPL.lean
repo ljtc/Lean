@@ -103,7 +103,7 @@ example : (∃ x : α, r) → r := sorry
 
 example (a : α) : r → (∃ x : α, r) := sorry
 
-example : (∃ x, p x ∧ r) ↔ (∃ x, p x) ∧ r := sorry
+example : (∃ x, p x) ∧ r → (∃ x, p x ∧ r) := sorry
 
 example : (∃ x, p x ∨ q x) ↔ (∃ x, p x) ∨ (∃ x, q x) := sorry
 
