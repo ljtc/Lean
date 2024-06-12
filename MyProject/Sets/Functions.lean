@@ -51,7 +51,20 @@ example : s ∪ f ⁻¹' u ⊆ f ⁻¹' (f '' s ∪ u) := sorry
 
 variable {I : Type*} (A : I → Set α) (B : I → Set β)
 
-example : (f '' ⋃ i, A i) = ⋃ i, f '' A i := sorry
+example : (f '' ⋃ i, A i) = ⋃ i, f '' A i := by
+  ext y; constructor
+  . intro h
+    simp at h
+    rcases h with ⟨x, ⟨i, xai⟩, fxy⟩
+    simp
+    use i, x, xai, fxy
+  . intro h
+    simp at h
+    rcases h with ⟨i, x, xai, fxy⟩
+    simp
+    use x; constructor
+    . use i
+    . assumption
 
 example : (f '' ⋂ i, A i) ⊆ ⋂ i, f '' A i := sorry
 
