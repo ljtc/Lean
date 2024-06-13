@@ -27,10 +27,12 @@ example (h : p) : p := by
 /-
 `have` hace lemas intermedios
 -/
-example : p := by
-  have bla : q := by
-    sorry
-  sorry
+example : ¬ (p ↔ ¬ p) := by
+  have lema : (p → ¬ p) → ¬ p := by
+    intro h hp
+    apply (h hp) hp
+  intro ⟨ ida, vuelta⟩
+  apply (lema ida) (vuelta (lema ida))
 
 /-
 `exfalso` es el principio de explosión. Así, modifica el goal a False

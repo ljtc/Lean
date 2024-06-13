@@ -1,4 +1,62 @@
+--question how to change my keyboard's keys
+import Mathlib.Data.Set.Lattice
+
+section Leanescu
+
+def Greeting (name : String) := s!"Hello {name}. Isn't Lean great?"
+
+#eval 2+2 = 4
+
+#eval Greeting ('Luis')
+
+end Leanescu
+
+
+/- ((a→ False) → False)→ False quiero una de a imp f
+
+pasar una de aimpfimpf
+
+aimpf a
+
+-/
+
+
 section misdebrayes
+
+/-
+
+Aqui hay algunos Comandos de lean:
+
+use
+apply
+intro
+constructor
+iff intro
+
+pero es mejor ver el file que hizo Luis de glosario en el git
+
+
+-/
+
+/-
+`have` hace lemas intermedios
+-/
+example :  (p → ¬ p) → ¬ p := λ h hp => (h hp) hp
+
+example : ¬ (p ↔ ¬ p) := by
+  have lema : (p → ¬ p) → ¬ p := by
+    intro h hp
+    apply (h hp) hp
+  intro ⟨ ida, vuelta⟩
+  apply (lema ida) (vuelta (lema ida))
+
+
+example : p → p ∨ q := by
+  intro hp
+  left
+  exact hp
+
+
 
 variable(a b c : Prop)
 variable(α : Type)
@@ -13,13 +71,48 @@ example : (a ∧ b ) → b := fun hayb => hayb.2
 example : a → a ∨ b := fun ha => Or.inl ha
 example : b→ a ∨ b := fun hb => Or.inr hb
 --example : a → a ∨ b := fun ha => left ha
+
 example : p ∧ q → q ∧ p := fun h => ⟨And.right h, And.left h⟩
 --example : p ∧ q → q ∧ p := λ h . (And.intro (And.right h) (And.left h) )
 example : p ∧ q → q ∧ p := λ h => And.intro (And.right h) (And.left h)
 --example : p ∧ q → q ∧ p := λ h => And.intro And.right h And.left h
 example : p ∧ q → q ∧ p := λ h => ⟨ h.2, h.1 ⟩
+example : p ∧ q ↔ q ∧ p := ⟨ λ h1h2 => ⟨ h1h2.2,h1h2.1 ⟩ , λ h2h1 => ⟨ h2h1.2,h2h1.1 ⟩ ⟩
+example : p ∧ q ↔ q ∧ p := by
+  constructor
+  . intro h
+    exact ⟨ h.2, h.1 ⟩
+  . intro h
+    exact ⟨ h.2, h.1⟩
+
 example : p ∨ q → q ∨ p := fun h => (Or.elim h Or.inr Or.inl)
 example : p ∨ q → q ∨ p := λ h => h.elim (λ hp => Or.inr hp) (λ hq => Or.inl hq)
+example : p ∨ q ↔ q ∨ p := ⟨ λ poq => Or.elim poq (λ hp => Or.inr hp) (λ hq => Or.inl hq) , λ qop => qop.elim (Or.inr) (Or.inl) ⟩
+example : p ∨ q ↔ q ∨ p := ⟨ λ (hp | hq) => , λ ⟩
+example : p ∨ q ↔ q ∨ p := by
+  constructor
+  . rintro (hp|hq)
+    . apply Or.inr hp
+    . apply Or.inl hq
+  . rintro (hq|hp)
+    . apply Or.inr hq
+    . apply Or.inl hp
+example : p ∨ q ↔ q ∨ p := by
+  constructor
+  . intro h
+    apply h.elim
+    . intro hp
+      apply Or.inr hp
+    . intro hq
+      apply Or.inl hq
+  . intro h
+    apply h.elim
+    . intro hq
+      apply Or.inr hq
+    . intro hp
+      apply Or.inl hp
+
+
 --example : p ∧ q → q ∧ p := λ h => (And.intro And.right h And.left h)
 example : p ∧ q ↔ q ∧ p := ⟨ fun hi => ⟨ hi.2 , hi.1 ⟩, fun hd => ⟨ hd.2, hd.1 ⟩⟩
 example : p ∨ q → q ∨ p := by
@@ -64,7 +157,14 @@ example : p ∨ q ↔ q ∨ p :=
 
 --example : p ∨ q → q ∨ p := fun h => (h.elim (λ hp => Or.inr hp) (λ hq => Or.inl hq))
 example : (p ∧ q) ∧ r ↔ p ∧ (q ∧ r) := ⟨ fun h => ⟨ (h.1).1 , ⟨ (h.1.2),h.2⟩⟩ , fun h => ⟨ ⟨ h.1, (h.2.1)⟩, (h.2).2⟩⟩
+example : (p ∧ q) ∧ r ↔ p ∧ (q ∧ r) := ⟨ λ ⟨ ⟨ hp, hq⟩ , hr⟩  => ⟨ hp, ⟨ hq, hr⟩ ⟩  , λ ⟨ hp, ⟨hq, hr⟩ ⟩ => ⟨⟨ hp, hq⟩,hr⟩⟩
+example : (p ∧ q) ∧ r ↔ p ∧ (q ∧ r) := ⟨ λ h => And.intro (h.1.1) (And.intro (h.1.2) (h.2)), λ h => And.intro (And.intro (h.1) (h.2.1)) (h.2.2)⟩
+
+
 example : (p ∨ q) ∨ r ↔ p ∨ (q ∨ r) := ⟨ fun h => Or.elim h (λ hpoq => Or.elim hpoq (Or.inl) (λ hq=>Or.inr (Or.inl hq))) (λ hr => Or.inr (Or.inr hr)) , fun h => h.elim (λ hp => (Or.inl (Or.inl hp))) (λ qor => qor.elim (λ hq => Or.inl (Or.inr hq)) (λ hr=> Or.inr hr))⟩
+example : (p ∨ q) ∨ r ↔ p ∨ (q ∨ r) := ⟨ λ h => h.elim (λ h2 => h2.elim (Or.inl) (λ hq => Or.inr (Or.inl hq))) (λ hr=> Or.inr (Or.inr hr)), λ h=> h.elim (λ hp => Or.inl (Or.inl hp)) (λ qor => qor.elim (λ hq => Or.inl (Or.inr hq)) (λ hr => Or.inr hr)) ⟩
+
+
 example : ¬ a ∨ b → (a → b) := by
   intro h
   intro ha
@@ -99,6 +199,126 @@ section PropositionsandProofs
 variable (p q r : Prop)
 
 -- commutativity of ∧ and ∨
+example : p ∧ q ↔ q ∧ p := by
+  constructor
+  . intro h
+    apply And.intro (And.right h) (And.left h)
+  . intro h
+    apply And.intro (And.right h) (And.left h)
+
+
+example : p ∨ q ↔ q ∨ p := by
+  constructor
+  . rintro (A|B)
+    . apply Or.inr A
+    . apply Or.inl B
+  . rintro (A|B)
+    . apply Or.inr A
+    . apply Or.inl B
+
+
+-- associativity of ∧ and ∨
+
+example : (p ∧ q) ∧ r ↔ p ∧ (q ∧ r) := ⟨λ ⟨⟨A,B⟩,C⟩=> ⟨A,⟨B,C⟩⟩, λ ⟨A,⟨B,C⟩⟩=>⟨⟨A,B⟩,C⟩ ⟩
+
+example : (p ∨ q) ∨ r ↔ p ∨ (q ∨ r) := by
+  constructor
+  rintro ((A|B)|C)
+  . apply Or.inl A
+  . apply Or.inr (Or.inl B)
+  . apply Or.inr (Or.inr C)
+  rintro (A|(B|C))
+  . apply Or.inl (Or.inl A)
+  . apply Or.inl (Or.inr B)
+  . apply Or.inr C
+example : (p ∨ q) ∨ r ↔ p ∨ (q ∨ r) := ⟨ λ h => h.elim (λ h1 => h1.elim (Or.inl) (λ B=>Or.inr (Or.inl B))) (λ C=>Or.inr (Or.inr C)) , λ h=> h.elim (λ A=> Or.inl (Or.inl A)) (λ h1=> h1.elim (λ B=> Or.inl (Or.inr B )) (Or.inr)) ⟩
+
+-- distributivity
+example : p ∧ (q ∨ r) ↔ (p ∧ q) ∨ (p ∧ r) := by
+  constructor
+  rintro ⟨ A, (B|C)⟩
+  . apply Or.inl ⟨ A,B⟩
+  . apply Or.inr ⟨ A,C⟩
+  rintro (⟨A,B⟩|⟨A,C⟩ )
+  . apply And.intro (A) (Or.inl B)
+  . apply And.intro (A) (Or.inr C)
+
+example : p ∨ (q ∧ r) ↔ (p ∨ q) ∧ (p ∨ r) := by
+  constructor
+  rintro (A|⟨B,C⟩ )
+  . apply And.intro (Or.inl A) (Or.inl A)
+  . apply And.intro (Or.inr B) (Or.inr C)
+  rintro ⟨(A|B),(A|C)⟩
+  . apply Or.inl A
+  . apply Or.inl A
+  . apply Or.inl A
+  . apply Or.inr (⟨B,C⟩ )
+
+example : p ∨ (q ∧ r) ↔ (p ∨ q) ∧ (p ∨ r) := ⟨ λ h => h.elim (λ A=> ⟨ Or.inl A, Or.inl A⟩ ) (λ ⟨B,C⟩ => ⟨ Or.inr B, Or.inr C⟩ ), λ h => h.1.elim (Or.inl) (λ B => h.2.elim (Or.inl) (λ C=> Or.inr ⟨B,C⟩ ))⟩
+
+-- other properties
+example : (p → (q → r)) ↔ (p ∧ q → r) := ⟨λ h => λ ⟨ A, B⟩ => (h A) B , λ h => λ A => λ B=> h ⟨ A, B⟩  ⟩
+example : (p → (q → r)) ↔ (p ∧ q → r) := ⟨And.elim, λ h hp hq => (h ⟨ hp, hq⟩ )⟩
+
+example : ((p ∨ q) → r) ↔ (p → r) ∧ (q → r) := ⟨ λ h => ⟨ λ A => h (Or.inl A), λ B => h (Or.inr B) ⟩ , λ h => λ g=> g.elim (λ A=> h.1 A) (λ B=> h.2 B)⟩
+
+example : ¬(p ∨ q) ↔ ¬p ∧ ¬q := ⟨λ h => ⟨λ A=> h (Or.inl A),λ B=> h (Or.inr B)⟩ , λ ⟨ np, nq ⟩ h => h.elim (λ hp=> np hp) (λ hq=> nq hq) ⟩
+
+example : ¬p ∨ ¬q → ¬(p ∧ q) := by
+  rintro (A|B)
+  . intro h
+    apply A h.1
+  . intro h
+    apply B h.2
+example : ¬ p ∨ ¬  q → ¬ (p ∧ q) := λ h => λ j => h.elim (λ hp => hp j.1) (λ hq => hq j.2)
+example : ¬ p ∨ ¬  q → ¬ (p ∧ q) := λ h j => h.elim (λ hp => hp j.1) (λ hq => hq j.2)
+
+example : ¬(p ∧ ¬p) := λ ⟨ A, N⟩ => N A
+
+example : p ∧ ¬q → ¬(p → q) := by
+  intro ⟨ A, N⟩ M
+  apply N (M A)
+example : p ∧ ¬q → ¬(p → q) := λ ⟨ A, N⟩ => λ M=> N (M A)
+example : p ∧ ¬q → ¬(p → q) := λ ⟨A, N⟩ M => N (M A)
+
+example : ¬p → (p → q) := by
+  intro n a
+  exfalso
+  apply n a
+example : ¬p → (p → q) := λ n a => False.elim (n a)
+
+example : (¬p ∨ q) → (p → q) := by
+  rintro (N|B) a
+  . exfalso
+    apply N a
+  . exact B
+
+example : (¬p ∨ q) → (p → q) := λ h a => h.elim (λ n=> False.elim (n a)) (λ hq=> hq)
+
+example : p ∨ False ↔ p := by
+  constructor
+  rintro (A|f)
+  . exact A
+  . exfalso
+    exact f
+  apply Or.inl
+example : p ∨ False ↔ p := ⟨λ h=> Or.elim h (λ A=> A) (False.elim ), Or.inl ⟩
+example : p ∨ False ↔ p := ⟨λ h=> h.elim (λ A=> A) (False.elim ), Or.inl ⟩
+
+example : p ∧ False ↔ False := by
+  constructor
+  apply And.right
+  intro f
+  exfalso
+  exact f
+example : p ∧ False ↔ False := ⟨ λ ⟨ _, f⟩ => f, λ f=> False.elim f⟩
+example : p ∧ False ↔ False := ⟨ And.right , λ f=> False.elim f⟩
+example : p ∧ False ↔ False := ⟨ And.right, False.elim⟩
+
+example : (p → q) → (¬q → ¬p) := λ h n a => n (h a)
+
+
+-- commutativity of ∧ and ∨
 example : p ∧ q ↔ q ∧ p := ⟨λ h => ⟨ h.2, h.1⟩ ,λ h => ⟨ h.2, h.1⟩⟩
 
 example : p ∨ q ↔ q ∨ p := ⟨ λ h=> h.elim (Or.inr ) (Or.inl),λ h=> h.elim (Or.inr ) (Or.inl)⟩
@@ -121,6 +341,7 @@ example : p ∧ (q ∨ r) ↔ (p ∧ q) ∨ (p ∧ r) := ⟨ λ h => h.2.elim (�
 example : p ∨ (q ∧ r) ↔ (p ∨ q) ∧ (p ∨ r) := ⟨ λ h => h.elim (λ hp => ⟨Or.inl hp, Or.inl hp ⟩) (λ qyr => ⟨Or.inr qyr.1, Or.inr qyr.2 ⟩),  λ h => h.1.elim (λ hp => Or.inl hp) (λ hq => h.2.elim (λ hp=> Or.inl hp) (λ hr => Or.inr ⟨hq, hr⟩ ))  ⟩
 
 -- other properties
+example : (p → (q → r)) → (p ∧ q → r) := And.elim
 example : (p → (q → r)) ↔ (p ∧ q → r) := ⟨ λ h => λ pyq => ((h pyq.1) pyq.2), λ hpyq => λ hp => λ hq => (hpyq ⟨hp, hq ⟩)⟩
 
 example : ((p ∨ q) → r) ↔ (p → r) ∧ (q → r) := ⟨ λ h => ⟨ λ hp => h (Or.inl hp), λ hq => h (Or.inr hq)⟩,  λ h=> λ poq => poq.elim (h.1) (h.2)⟩
@@ -144,6 +365,7 @@ example : p ∨ False ↔ p := ⟨ λ pofalso => Or.elim pofalso (λ hp => hp ) 
 example : p ∨ False ↔ p := ⟨ λ h=> h.elim (λ hp => hp) (λ False => False.elim), λ hp => Or.inl hp⟩
 
 example : p ∧ False ↔ False := ⟨ λ pyfalso => pyfalso.2, λ falso => False.elim falso ⟩
+example : p ∧ False ↔ False := ⟨ And.right, False.elim ⟩
 
 example : (p → q) → (¬q → ¬p) := λ pimplicaq => λ nq => λ hp => nq (pimplicaq hp)
 
@@ -210,7 +432,7 @@ end logicaclasica
 /-Section 4 Quantifiers and Equality-/
 section ex41
 variable (α : Type) (p q : α → Prop)
-variable (a b : Prop)
+variable (a b r B k: Prop)
 variable (x:α)
 
 /-
@@ -355,6 +577,41 @@ example : (∃ x , p x)→ (∃ x , r→ p x) := λ ⟨t, hp⟩=>⟨t, λ hhr=> 
 example : (∃ x , ¬ p x )→ (∃ x, p x → r):= (λ ⟨ w, nope⟩=> ⟨ w, λ yep => False.elim (nope yep)⟩)
 
 example (a : α) : (∃ x, r → p x) ↔ (r → ∃ x, p x) := sorry
+
+
+
+example : (∃ _ : α, r) → r := λ ⟨_, hr ⟩ => hr
+
+example (a : α) : r → (∃ _ : α, r) := λ hr => ⟨(a:α), hr⟩
+
+example : (∃ x, p x ∧ r) ↔ (∃ x, p x) ∧ r := ⟨λ ⟨ t,h⟩=>⟨⟨t,h.1⟩,h.2⟩,λ ⟨⟨t, hp⟩,hr⟩=> ⟨t,⟨hp, hr ⟩⟩⟩
+
+example : (∃ x, p x ∨ q x) ↔ (∃ x, p x) ∨ (∃ x, q x) := ⟨ λ ⟨ t, poq⟩=>Or.elim poq (λ hp=> Or.inl (⟨t,hp⟩)) (λ hq=>Or.inr (⟨t,hq⟩)), λ epoeq=> Or.elim epoeq (λ ⟨w,hp ⟩=>⟨w,Or.inl hp⟩) (λ ⟨t,hq⟩=>⟨ t, Or.inr hq⟩ )⟩
+
+example : (∀ x, p x) ↔ ¬ (∃ x, ¬ p x) := ⟨λ anyxpx => λ ⟨t,npt⟩=> npt (anyxpx t),λ nexnpx=>λ (hx:α)=>Or.elim (em (p (hx:α))) (λ hp=> hp) (λ np=> False.elim (nexnpx (⟨(hx:α),np⟩)))⟩
+
+example : (∃ x, p x) ↔ ¬ (∀ x, ¬ p x) := ⟨λ ⟨t,hp⟩=>λ anyxnpx=> (anyxnpx t) hp, λ nx=> Or.elim (em (∃ x , p x)) (λ b=> b) (λ nh => False.elim (nx ((λ h=>λ (hx:α)=> λ hpx => h (⟨(hx:α),hpx⟩)) nh)))⟩
+
+example : (¬ ∃ x, p x) ↔ (∀ x, ¬ p x) := ⟨λ h=>λ (hx:α)=> λ hpx => h (⟨(hx:α),hpx⟩), λ h=> λ ⟨ t, hpx⟩=> (h t) hpx⟩
+
+example : (¬ ∀ x, p x) ↔ (∃ x, ¬ p x) := ⟨λ nany=> Or.elim (em (∃ x, ¬ p x)) (λ hp=> hp) (λ hn=>False.elim (nany ((λ nexnpx=>λ (hx:α)=>Or.elim (em (p (hx:α))) (λ hp=> hp) (λ np=> False.elim (nexnpx (⟨(hx:α),np⟩)))) hn)) ), λ ⟨t, npx ⟩ => λ paratodo=> npx (paratodo t)⟩
+
+example : (∀ x, p x → r) ↔ (∃ x, p x) → r := ⟨λ h=> λ ⟨t,hp⟩=> (h t) hp,λ h=>λ (hx:α)=>λ hp=> h (⟨ (hx:α),hp⟩)⟩
+
+example (a : α) : (∃ x, p x → r) ↔ (∀ x, p x) → r :=  ⟨λ ⟨t,par⟩=>λ anyxpx=> par (anyxpx t), λ anyxpxtor => Or.elim (em r) (λ hr => ⟨ (a:α), λ _ => hr⟩) (λ nr =>  (λ ⟨ w, nope⟩=> ⟨ w, λ yep => False.elim (nope yep)⟩)    ((λ nany=> Or.elim (em (∃ x, ¬ p x)) (λ hp=> hp) (λ hn=>False.elim (nany ((λ nexnpx=>λ (hx:α)=>Or.elim (em (p (hx:α))) (λ hp=> hp) (λ np=> False.elim (nexnpx (⟨(hx:α),np⟩)))) hn)) )) ((λ paratodoxar => λ pt => nr (paratodoxar pt)) anyxpxtor) )    ) ⟩
+
+example (a : α) : (∃ x, r → p x) ↔ (r → ∃ x, p x) := ⟨λ ⟨t, rap⟩=>λ hr=>⟨t,rap hr⟩,λ rex=> Or.elim (em r) (λ hr=> (λ ⟨t, hp⟩=>⟨t, λ _=> hp⟩) (rex hr)) (λ nr=> ⟨ (a:α), λ hr=> False.elim (nr hr)⟩)⟩
+
+
+
+example : α → ((∀ x : α, r) ↔ r) := λ halfa => ⟨ λ any => (any halfa), λ hr => λ _ => hr ⟩
+
+example : (∀ x, p x ∨ r) ↔ (∀ x, p x) ∨ r := ⟨ λ any => Or.elim (em r) (Or.inr) (λ nr => Or.inl (λ x =>  Or.elim (any x) (λ h=>h) (λ hr => False.elim (nr hr)))), λ facil => facil.elim (λ parat=> λ x => Or.inl (parat x)) (λ hr => λ _ => Or.inr hr)⟩
+
+example : (∀ x, r → p x) ↔ (r → ∀ x, p x) := ⟨λ h => λ hr => λ x => (h x ) hr  , λ h => λ x => λ hr => (h hr) x⟩
+
+
+
 end classic41
 
 section Section42
