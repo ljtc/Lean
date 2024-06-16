@@ -68,25 +68,85 @@ protected theorem add_zero (a : R2) : add a zero = a := by
   ext <;> dsimp
   repeat' apply add_zero
 
+def nsmul := fun (n : ℕ) ↦ fun (a : R2) ↦ smul ↑n a
+
+protected theorem nsmul_zero : ∀ a, nsmul 0 a = zero := by
+  intro a
+  rw [nsmul, smul]
+  ext <;> dsimp
+  . rw [Nat.cast_zero]
+    apply zero_mul
+  . rw [Nat.cast_zero]
+    apply zero_mul
+
+protected theorem nsmul_succ :
+    ∀ (n : ℕ) (a), nsmul (n + 1) a = add (nsmul n a) a := by
+  intro n a
+  simp only [nsmul, smul, add]
+  ext <;> dsimp
+  repeat' rw [Nat.cast_succ, add_mul, one_mul]
+
 
 instance : AddCommMonoid R2 where
   add := MyR2.add
-  add_assoc a b c := by apply MyR2.add_assoc
+  add_assoc := MyR2.add_assoc
   zero := MyR2.zero
   zero_add := MyR2.zero_add
   add_zero := MyR2.add_zero
   add_comm := MyR2.add_comm
-  nsmul := fun (n : ℕ) ↦ fun (a : R2) ↦ smul ↑n a
+  nsmul := MyR2.nsmul
+  nsmul_zero := MyR2.nsmul_zero
+  nsmul_succ := MyR2.nsmul_succ
+
+
+protected theorem one_smul (a : R2) : smul (1 : ℝ) a = a := by
+  rw [smul]
+  ext <;> dsimp
+  repeat' apply one_mul
+
+protected theorem mul_smul (r s : ℝ) (a : R2) :
+    smul (r * s) a = smul r (smul s  a) := by
+  simp only [smul]
+  ext <;> dsimp
+  repeat' apply mul_assoc
+
+protected theorem smul_zero (r : ℝ) : smul r zero = zero := by
+  rw [smul]
+  ext <;> dsimp
+  repeat' apply mul_zero
+
+protected theorem smul_add (r : ℝ) (a b : R2) :
+    smul r (add a b) = add (smul r a) (smul r b) := by
+  simp only [add, smul]
+  ext <;> dsimp
+  repeat' apply mul_add
+
+protected theorem add_smul (r s : ℝ) (a : R2) :
+    smul (r + s) a = add (smul r a) (smul s a) := by
+  simp only [smul, add]
+  ext <;> dsimp
+  repeat' apply add_mul
+
+protected theorem zero_smul (a : R2) : smul (0 : ℝ) a = zero := by
+  simp only [smul]
+  ext <;> dsimp
+  repeat' apply zero_mul
+
 
 
 instance : Module ℝ R2 where
-  smul := sorry
-  one_smul := sorry
-  mul_smul := sorry
-  smul_zero := sorry
-  smul_add := sorry
-  add_smul := sorry
-  zero_smul := sorry
+  smul := MyR2.smul
+  one_smul := MyR2.one_smul
+  mul_smul := MyR2.mul_smul
+  smul_zero := MyR2.smul_zero
+  smul_add := MyR2.smul_add
+  add_smul := MyR2.add_smul
+  zero_smul := MyR2.zero_smul
 
 
 end MyR2
+
+
+--Theorem 1.1 (Cancelation Law for Vector Adition)
+example (x y z : V) (h : x + z = y + z) : x = y := by
+  apply add_right_cancel h
