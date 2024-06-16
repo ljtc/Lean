@@ -25,6 +25,25 @@ example (h : p) : p := by
   assumption
 
 /-
+Los conectivos y cuantificadores que se interpretan como funciones en BHK
+se rompen con `intro`. En implicaciones es como suponer el antecedente y el
+goal se vuelve el consecuente. En universales es como empesar con "sea x",
+en este caso el goal se modifica para demostrar que x satisface la fórmula.
+-/
+example : p → p := by
+  intro hp
+  exact hp
+
+example : ∀ x, a x := by
+  intro x
+  sorry
+
+
+example : ¬p := by
+  intro hp
+  sorry
+
+/-
 `have` hace lemas intermedios
 -/
 example : ¬ (p ↔ ¬ p) := by
@@ -37,9 +56,10 @@ example : ¬ (p ↔ ¬ p) := by
 /-
 `exfalso` es el principio de explosión. Así, modifica el goal a False
 -/
-example : p := by
+example : ¬ p → (p → q) := by
+  intro np hp
   exfalso
-  sorry
+  apply np hp
 
 
 
@@ -55,13 +75,13 @@ example : p ∧ q := by
   . sorry
   . sorry
 
+-- Un ↔ (si y solo si) es una conjuncion de dos implicaciones. Asi que tambien podemos usar `constructor`
 example : p ↔ q := by
   constructor
   . sorry
   . sorry
 
-/-
-Las disyunciones se rompen con `left` y `right`. Modica el goal, ahora habrá
+/-Las disyunciones se rompen con `left` y `right`. Modifica el goal, ahora habrá
 que demostrar el lado izquierdo o derecho del goal anterior.
 -/
 example : p ∨ q := by
@@ -81,23 +101,6 @@ example : ∃ x, a x := by
   use w
   sorry
 
-/-
-Los conectivos y cuantificadores que se interpretan como funciones en BHK
-se rompen con `intro`. En implicaciones es como suponer el antecedente y el
-goal se vuelve el consecuente. En universales es como empesar con "sea x",
-en este caso el goal se modica para demostrar que x satisface la fórmula
--/
-example : p → q := by
-  intro hp
-  sorry
-
-example : ∀ x, a x := by
-  intro x
-  sorry
-
-example : ¬p := by
-  intro hp
-  sorry
 
 /-
 Cuando la hipótesis es compleja se puede romper y suponer cada parte de
