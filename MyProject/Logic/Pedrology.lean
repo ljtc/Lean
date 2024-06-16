@@ -7,7 +7,7 @@ def Greeting (name : String) := s!"Hello {name}. Isn't Lean great?"
 
 #eval 2+2 = 4
 
-#eval Greeting ('Luis')
+#eval Greeting ('Amigos')
 
 end Leanescu
 
@@ -389,9 +389,9 @@ end PropositionsandProofs
 section logicaclasica
 open Classical
 
-theorem exfalso1 : ¬ p → (p → q) := λ nop => λ hp => False.elim (nop hp)
+theorem exfalso1 {p q : Prop}: ¬ p → (p → q) := λ nop => λ hp => False.elim (nop hp)
 
-theorem hilbert1 : q → (p→ q) := λ hhq => (λ _ => hhq)
+theorem hilbert1 {p q : Prop}: q → (p→ q) := λ hhq => (λ _ => hhq)
 
 theorem hilbert2 : q → (p→ p ∧ q) := λ hhq => λ hhp => ⟨hhp, hhq⟩
 
@@ -476,12 +476,11 @@ variable (r b c : Prop)
 
 
 
-example : (∃ x : α, r) → r := λ ⟨ _, h⟩ => h
+example : (∃ _ : α, r) → r := λ ⟨ _, h⟩ => h
 
 example : (∃ _ : α, r) → r := λ ⟨ _, h⟩ => h
 
-
-example (a : α) : r → (∃ x : α, r) := λ hr => ⟨(a:α), hr⟩
+example (a : α) : r → (∃ _ : α, r) := λ hr => ⟨(a:α), hr⟩
 
 example : (∃ x, p x ∧ r)→ (∃ x, p x) ∧ r := λ ⟨t, h ⟩=>⟨⟨t,h.1⟩,h.2⟩
 
@@ -518,13 +517,13 @@ theorem contrapositive : (¬ b→ ¬ c)→ (c→ b):=λ nbtonc=> λ hc=> Or.elim
 
 --Estos son unos lemas que necesitamos
 
-example : (¬ ∃ x, ¬ p x)→ (∀ x, p x) := (λ h => λ x => Or.elim (em (p x)) (λ hp=> hp) (λ np=> False.elim (h ⟨ x, np⟩ )))
+example : (¬ ∃ x, ¬ p x)→ (∀ x, p x) := (λ h => λ x => Or.elim (Classical.em (p x)) (λ hp=> hp) (λ np=> False.elim (h ⟨ x, np⟩ )))
 
 example : (∃ x , ¬ p x) → (∃ x , p x → r) := (λ ⟨ wit, prueba⟩ => ⟨ wit, (λ pruebap => False.elim (prueba pruebap))⟩)
 
 
 --double negation elimination
-example : (¬ ¬ r)→ r:= (λ nnr => Or.elim (em r ) (λ hr => hr) (λ nr => False.elim (nnr nr)))
+example : (¬ ¬ r)→ r:= (λ nnr => Or.elim (Classical.em r ) (λ hr => hr) (λ nr => False.elim (nnr nr)))
 
 --contrapositiva
 example : (r → B) → (¬ B → ¬ r) := (λ rab=> λ nb=> λ hipr=> nb (rab hipr ))
@@ -532,21 +531,21 @@ example : (r → B) → (¬ B → ¬ r) := (λ rab=> λ nb=> λ hipr=> nb (rab h
 
 --y ya aqui juntamos los lemas
 example (a : α) : (∃ x, p x → r) ↔ (∀ x, p x) → r := ⟨ λ ⟨ t, par⟩  => λ anyx =>  par (anyx t)  ,
-λ allxr => Or.elim (em (∀ x, p x)) (λ si => ⟨ (a:α) , (λ sr=> λ _ => sr) (allxr si)⟩ )
+λ allxr => Or.elim (Classical.em (∀ x, p x)) (λ si => ⟨ (a:α) , (λ sr=> λ _ => sr) (allxr si)⟩ )
 ( λ no =>
  ((λ ⟨wit, pruebadenop⟩ => ⟨wit, λ pruebap => False.elim (pruebadenop pruebap)⟩)
-  ((λ nnk => Or.elim (em (∃ x, ¬ p x) ) (λ hk => hk) (λ nk => False.elim (nnk nk))) --es curioso que aqui hay que decirle que proposicion queremos para hacer double negation elimination
+  ((λ nnk => Or.elim (Classical.em (∃ x, ¬ p x) ) (λ hk => hk) (λ nk => False.elim (nnk nk))) --es curioso que aqui hay que decirle que proposicion queremos para hacer double negation elimination
    (( (λ rab=> λ nb=> λ hipr=> nb (rab hipr))  --contrapositiva
-      (λ h => λ x => Or.elim (em (p x)) (λ hp=> hp) (λ np=> False.elim (h (⟨ x, np⟩)))) --no existe no a para todo
+      (λ h => λ x => Or.elim (Classical.em (p x)) (λ hp=> hp) (λ np=> False.elim (h (⟨ x, np⟩)))) --no existe no a para todo
     ) no
    )
  ))
 )⟩
 
 
-example : ¬ (b ∨ c) ↔ ¬ b ∧ ¬ c := ⟨ ⟨λ h => , ⟩, ⟩
+example : ¬ (b ∨ c) ↔ ¬ b ∧ ¬ c :=  ⟨λ h => ⟨ λ hb => h (Or.inl hb), λ hc => h (Or.inr hc) ⟩ , λ h otra => otra.elim (λ hb => h.1 hb) (λ hc => h.2 hc) ⟩
 
-example :  ¬ (∀ x, ¬ p x) → (∃ x, p x) := λ nx=> Or.elim (em (∃ x , p x)) (λ h=> h) (λ hn=> False.elim (nx (lema2 hn)))
+example :  ¬ (∀ x, ¬ p x) → (∃ x, p x) := λ nx=> Or.elim (Classical.em (∃ x , p x)) (λ h=> h) (λ hn=> False.elim (nx (lema2 hn)))
 
 example : (¬ ∃ x, p x) ↔ (∀ x, ¬ p x) := sorry
 

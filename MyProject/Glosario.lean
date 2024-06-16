@@ -10,6 +10,7 @@ variable (w : α)
 variable (p q r : Prop)
 variable (a b : α → Prop)
 
+
 --En general
 /-
 `exact` le dice a Lean que el goal es satisfecho por el término que
@@ -46,12 +47,7 @@ example : ¬p := by
 /-
 `have` hace lemas intermedios
 -/
-example : ¬ (p ↔ ¬ p) := by
-  have lema : (p → ¬ p) → ¬ p := by
-    intro h hp
-    apply (h hp) hp
-  intro ⟨ ida, vuelta⟩
-  apply (lema ida) (vuelta (lema ida))
+
 
 /-
 `exfalso` es el principio de explosión. Así, modifica el goal a False

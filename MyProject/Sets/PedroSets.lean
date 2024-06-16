@@ -138,17 +138,18 @@ example : s \ t ∪ t \ s = (s ∪ t) \ (s ∩ t) := Set.ext λ _ => ⟨λ h=> h
 #check mem_compl_iff
 
 example : s ⊆ t → s ∩ tᶜ ⊆ ∅ :=   λ sct => λ _ => λ  ⟨ es, nt⟩  => False.elim (nt (sct  es))
-
-
+example : s ∩ tᶜ ⊆ ∅ → s ⊆ t := λ sit x es => Or.elim (em (x ∈ t)) (λ h => h) (λ nt => False.elim (sit ⟨ es, nt⟩ ))
 example : (x ∈ (s ∩ tᶜ)) → x ∈ s := λ h => h.1
-
 example : (x ∈ (s ∩ tᶜ)) → ¬ (x ∈ t ) := λ h => h.2
 
 
 #check mem_inter_iff
-example : s \ (t ∪ u) = (s \ t) ∩ (s \ u) := sorry
+example : s \ (t ∪ u) ⊆ (s \ t) ∩ (s \ u) := λ _ ⟨ a, b⟩ => ⟨⟨ a, λ c=> b (Or.inl c) ⟩ ,⟨ a,λ c=> b (Or.inr c)⟩  ⟩
+example : (s \ t) ∩ (s \ u) ⊆ s \ (t ∪ u) := λ _ ⟨ ⟨ a,b⟩ ,⟨ _,c⟩ ⟩ => ⟨ a, λ d=> d.elim (λ e=> b e) (λ e => c e) ⟩
+example : s \ (t ∪ u) = (s \ t) ∩ (s \ u) := Set.ext λ _ => ⟨λ ⟨ a,b⟩=> ⟨⟨ a, λ c=> b (Or.inl c) ⟩ ,⟨ a,λ c=> b (Or.inr c)⟩  ⟩,λ ⟨ ⟨ a,b⟩ ,⟨ _,c⟩ ⟩ => ⟨ a, λ d=> d.elim (λ e=> b e) (λ e => c e) ⟩ ⟩
 
-example : s \ (t ∩ u) = (s \ t) ∪ (s \ u) := sorry
+
+example : s \ (t ∩ u) = (s \ t) ∪ (s \ u) := Set.ext λ x => ⟨ λ ⟨ a,  b ⟩ => Or.elim (em (x ∈ t)) (λ h=> Or.inr (⟨ a,λ eu => b ⟨ h, eu⟩ ⟩)) (λ n=> Or.inl ⟨ a,n⟩ ) ,λ a=> a.elim (λ ⟨ e,f⟩ => ⟨ e, λ g => f g.1⟩ ) (λ ⟨ e,f⟩ => ⟨ e, λ g => f g.2⟩) ⟩
 
 
 end
@@ -162,21 +163,14 @@ variable (s : Set α)
 
 open Set
 
-/-
-Hint:
-Translate from sets to logic usin rw [...]
--/
 #check mem_inter_iff
 #check mem_iUnion
 example : (s ∩ ⋃ i, A i) = ⋃ i, A i ∩ s := sorry
+example : (s ∩ ⋃ i, A i) ⊆  ⋃ i, A i ∩ s := λ _ ⟨ es, ⟨ w, ea⟩⟩  => ⟨ w, ⟨ ea, es⟩ ⟩
 
 #check mem_iInter
 example : (⋂ i, A i ∩ B i) = (⋂ i, A i) ∩ ⋂ i, B i := sorry
 
-/-
-Hint:
-Use by_cases xs : x ∈ s at an appropiate point
--/
 example : (s ∪ ⋂ i, A i) = ⋂ i, A i ∪ s := sorry
 
 
