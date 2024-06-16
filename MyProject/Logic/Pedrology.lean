@@ -56,6 +56,7 @@ example : p → p ∨ q := by
   left
   exact hp
 
+example : p → p ∨ q := Or.inl
 
 
 variable(a b c : Prop)
@@ -68,6 +69,7 @@ example : (a ∧ b) → a := fun hayb => hayb.1
 example : (a ∧ b) → a := fun h => And.left h
 example : (a ∧ b ) → b := fun h => h.right
 example : (a ∧ b ) → b := fun hayb => hayb.2
+example : (a ∧ b ) → b := And.right
 example : a → a ∨ b := fun ha => Or.inl ha
 example : b→ a ∨ b := fun hb => Or.inr hb
 --example : a → a ∨ b := fun ha => left ha
