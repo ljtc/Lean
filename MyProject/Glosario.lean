@@ -57,6 +57,14 @@ example : ¬ p → (p → q) := by
   exfalso
   apply np hp
 
+/-
+`contradiction` busca una contradicción entre las hipótesis.
+Además, `intros` introduce todas las hipósis que haya
+-/
+example : ¬p → (p → q) := by
+  intros
+  contradiction
+
 
 
 --Lógica
@@ -96,6 +104,17 @@ la fórmula se satisface con el término que se le paso a use. Requiere
 example : ∃ x, a x := by
   use w
   sorry
+
+/-
+Hay muchas formas de romper un existencial, cuando está en el goal
+otra de ellas es `exists`.
+Además, `let` se usa para definir un término auxiliar. Algo similar
+a `have`
+-/
+example : ∃ x, x + 2 = 8 := by
+  let x : Nat := 3 * 2
+  exists x
+
 
 
 /-
