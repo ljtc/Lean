@@ -4,7 +4,7 @@ import Mathlib.Tactic.ByContra
 import Mathlib.Data.Set.Lattice
 import Mathlib.Algebra.Ring.Defs
 
-section log5
+section log
 variable (α : Type)
 variable (w : α)
 variable (p q r : Prop)
