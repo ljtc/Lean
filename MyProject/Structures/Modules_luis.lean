@@ -150,3 +150,11 @@ end MyR2
 --Theorem 1.1 (Cancelation Law for Vector Adition)
 example (x y z : V) (h : x + z = y + z) : x = y := by
   apply add_right_cancel h
+
+--Corolario 1 (The vector 0 in unique)
+example (x : V) (h : ∀ (y : V), y + x = y) : x = 0 := by
+  calc
+    x = 0 + x := by rw [zero_add]
+    _ = 0     := by rw [(h 0)]
+
+--Corollary 2 (Aditive inverse is unique)

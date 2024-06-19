@@ -107,3 +107,8 @@ end MyR2
 
 --Theorem 1.1 (Cancelation Law for Vector Adition)
 example (x y z : V) (h : x + z = y + z) : x = y := sorry
+
+--Corollary 1 (The vector 0 in unique)
+example (x : V) (h : ∀ (y : V), y + x = y) : x = 0 := sorry
+
+--Corollary 2 (Aditive inverse is unique)
