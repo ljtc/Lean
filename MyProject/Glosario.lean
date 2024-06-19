@@ -1,5 +1,8 @@
-import Mathlib.Tactic
-import Mathlib.Data.Set.Defs
+import Mathlib.Tactic.Use
+import Mathlib.Tactic.PushNeg
+import Mathlib.Tactic.ByContra
+import Mathlib.Data.Set.Lattice
+import Mathlib.Algebra.Ring.Defs
 
 section log5
 variable (α : Type)
@@ -7,34 +10,52 @@ variable (w : α)
 variable (p q r : Prop)
 variable (a b : α → Prop)
 
+
 --En general
 /-
-exact le dice a Lean que el goal es satisfecho por el término que
+`exact` le dice a Lean que el goal es satisfecho por el término que
 se le pasa
 -/
 example (h : p) : p := by
   exact h
 
 /-
-assumption busca entre las hipótesis para ver si una puede cerrar el goal
+`assumption` busca entre las hipótesis para ver si una puede cerrar el goal
 -/
 example (h : p) : p := by
   assumption
 
 /-
-have hace lemas intermedios
+Los conectivos y cuantificadores que se interpretan como funciones en BHK
+se rompen con `intro`. En implicaciones es como suponer el antecedente y el
+goal se vuelve el consecuente. En universales es como empesar con "sea x",
+en este caso el goal se modifica para demostrar que x satisface la fórmula.
 -/
-example : p := by
-  have bla : q := by
-    sorry
+example : p → p := by
+  intro hp
+  exact hp
+
+example : ∀ x, a x := by
+  intro x
+  sorry
+
+
+example : ¬p := by
+  intro hp
   sorry
 
 /-
-exfalso es el principio de explosión. Así, modifica el goal a False
+`have` hace lemas intermedios
 -/
-example : p := by
+
+
+/-
+`exfalso` es el principio de explosión. Así, modifica el goal a False
+-/
+example : ¬ p → (p → q) := by
+  intro np hp
   exfalso
-  sorry
+  apply np hp
 
 
 
@@ -42,7 +63,7 @@ example : p := by
 
 -- para modificar el goal
 /-
-Para "romper" conjunciones del goal se usa constructor. Crea un goal
+Para "romper" conjunciones del goal se usa `constructor`. Crea un goal
 por cada conjunto (¿se dice así?)
 -/
 example : p ∧ q := by
@@ -50,13 +71,13 @@ example : p ∧ q := by
   . sorry
   . sorry
 
+-- Un ↔ (si y solo si) es una conjuncion de dos implicaciones. Asi que tambien podemos usar `constructor`
 example : p ↔ q := by
   constructor
   . sorry
   . sorry
 
-/-
-Las disyunciones se rompen con left y right. Modica el goal, ahora habrá
+/-Las disyunciones se rompen con `left` y `right`. Modifica el goal, ahora habrá
 que demostrar el lado izquierdo o derecho del goal anterior.
 -/
 example : p ∨ q := by
@@ -67,32 +88,15 @@ example : p ∨ q := by
   right
   sorry
 
-/-Así, modifica el goal a False
-Un existencial se puede romper con use. Modica el goal para demostrar que
+/-
+Un existencial se puede romper con `use`. Modica el goal para demostrar que
 la fórmula se satisface con el término que se le paso a use. Requiere
-import Mathlib.Tactic.Use
+`import Mathlib.Tactic.Use`
 -/
 example : ∃ x, a x := by
   use w
   sorry
 
-/-
-Los conectivos y cuantificadores que se interpretan como funciones en BHK
-se rompen con intro. En implicaciones es como suponer el antecedente y el
-goal se vuelve el consecuente. En universales es como empesar con sea x,
-en este caso el goal se modica para demostrar que x satisface la fórmula
--/
-example : p → q := by
-  intro hp
-  sorry
-
-example : ∀ x, a x := by
-  intro x
-  sorry
-
-example : ¬p := by
-  intro hp
-  sorry
 
 /-
 Cuando la hipótesis es compleja se puede romper y suponer cada parte de
@@ -106,7 +110,7 @@ example : (∃ x, a x ∧ b x) → p := by
   intro ⟨x, ⟨ha, hb⟩⟩
   sorry
 /-
-Hay un r intro que puede romper una disyunción al mismo tiempo que
+Hay un `rintro` que puede romper una disyunción al mismo tiempo que
 supone el antecedente. En este caso se crean dos goals.
 -/
 example : p ∨ q → r := by
@@ -117,14 +121,14 @@ example : p ∨ q → r := by
 
 -- para modificar hipótesis
 /-
-Para romper conjunciones de una hipótesis se usa obtain
+Para romper conjunciones de una hipótesis se usa `obtain`
 -/
 example (h : p ∧ q) : r := by
   obtain ⟨hp, hq⟩ := h
   sorry
 
 /-
-Las disyunciones se rompen con cases o rcases. Hay varias formas
+Las disyunciones se rompen con `cases` o `rcases`. Hay varias formas
 para la sitaxis de estos
 -/
 example (h : p ∨ q) : r := by
@@ -142,7 +146,7 @@ example (h : p ∨ q) : r := by
   . sorry
   . sorry
 /-
-rcases es más fuerte ya que puede romper fórmulas complejas
+`rcases` es más fuerte ya que puede romper fórmulas complejas
 -/
 example (h : (∃ x, a x) ∧ p ∨ q) : r := by
   rcases h with ⟨⟨x, ha⟩, hp⟩ | hq
@@ -150,7 +154,7 @@ example (h : (∃ x, a x) ∧ p ∨ q) : r := by
   . sorry
 
 /-
-Un existencial se rompe con obtain, como una conjunción.
+Un existencial se rompe con `obtain`, como una conjunción.
 -/
 example (h : ∃ x, a x) : p := by
   obtain ⟨x, ha⟩ := h
@@ -158,7 +162,7 @@ example (h : ∃ x, a x) : p := by
 
 /-
 Para romper conectivos y cuantificadores que se interpretan como funciones
-en BHK se usa apply
+en BHK se usa `apply`
 -/
 example (h : p → q) (hp : p) : q := by
   apply h hp
@@ -174,7 +178,7 @@ example (h : ¬p) (hp : p) : False := by
 
 --Lógica clásica
 /-
-Para el tercero excluido se usa by_cases. Crea dos goals, en uno se
+Para el tercero excluido se usa `by_cases`. Crea dos goals, en uno se
 supone que la proposición es cierta y en el otro que la negación
 es cierta
 -/
@@ -184,7 +188,7 @@ example : p := by
   . sorry
 
 /-
-Las demostraciones por contradicción se hacen usando by_contra. Introduce
+Las demostraciones por contradicción se hacen usando `by_contra`. Introduce
 la negación del goal como hipótesis y el goal es False
 -/
 example : p := by
@@ -194,8 +198,8 @@ example : p := by
 /-
 Cuando hay negaciones en el goal o las hipótesis, se puede modicar la
 fórmula con las equivalencias lógicas que incluyen ¬. Para esto se usa
-la táctica push_neg. Requiere
-import Mathlib.Tactic.PushNeg
+la táctica `push_neg`. Requiere
+`import Mathlib.Tactic.PushNeg`
 -/
 example : ¬(p ∨ q) := by
   push_neg
@@ -212,11 +216,14 @@ example (h : ¬(p → q)) : ¬(p ∨ q) := by
   push_neg at *
   sorry
 /-
-También es posible combinar by_contra con push_neg
+También es posible combinar `by_contra` con `push_neg`. Requiere
+`import Mathlib.Tactic.ByContra`
 -/
 example : p ∧ q := by
   by_contra! h
   sorry
+
+
 
 end log
 
@@ -322,3 +329,31 @@ example (x : α) : x ∈ ⋃ i, A i := by
 
 
 end sets
+
+
+
+--Igualdades
+/-
+Lean tiene varias formas para demostrar igualdades, las que más he usado
+son `rw [...]`, `simp [...]` (estas dos se parecen mucho, aunque simp es
+más fuerte) y `calc`
+-/
+section
+variable {G : Type*} [Group G]
+variable (a b c : G)
+
+example (h1 : a = b) (h2 : b = c) : a = c := by
+  rw [h1] --sutituye a por b en el goal. PD b=c
+  rw [h2] --sutituye b por c en el goal. PD c=c. Al final hace rfl
+
+example (h1 : a = b) (h2 : b = c) : a = c := by
+  rw [h1, h2]
+
+example (h1 : a = b) (h2 : b = c) : a = c := by
+  simp only [h1, h2]
+
+example (h1 : a = b) (h2 : b = c) : a = c := by
+  calc
+    a = b := by assumption
+    _ = c := by assumption
+end

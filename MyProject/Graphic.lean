@@ -34,6 +34,9 @@ theorem elem_idem {M : Type} [GraphicMonoid M] (a : M) : a * a = a := by
 theorem unit_id {M : Type} [GraphicMonoid M] (a b : M) (h : a * b = 1)
     : a = 1 := by
   calc
-    a
+    a = 1 * a := by rw [one_mul]
+    _ = a * b * a := by rw [h]
+    _ = a * b := by rw [GraphicMonoid.graphic_id]
+    _ = 1 := by rw [h]
 
 end Graphic
