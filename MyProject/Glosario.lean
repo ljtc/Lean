@@ -1,7 +1,7 @@
 import Mathlib.Tactic
 import Mathlib.Data.Set.Defs
 
-section log
+section log5
 variable (α : Type)
 variable (w : α)
 variable (p q r : Prop)
