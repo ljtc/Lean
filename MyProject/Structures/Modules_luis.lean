@@ -1,5 +1,6 @@
 import Mathlib.Algebra.Module.LinearMap.Basic
 import Mathlib.Data.Real.Basic
+import Mathlib.Tactic
 
 /-
 En Mathlib se unificaron los nombre de espacio vectorial, modulo y
@@ -46,29 +47,49 @@ def zero : R2 := ⟨0, 0⟩
 
 def smul (r : ℝ) (a : R2) : R2 := ⟨r * a.x, r * a.y⟩
 
+def nsmul := fun (n : ℕ) ↦ fun (a : R2) ↦ smul ↑n a
+
+def zsmul := fun (m : ℤ) ↦ fun (a : R2) ↦ smul ↑m a
+
+
+/-
+Lo siguiente es para usar +, • y - en lugar de add, smul y neg
+en las operaciones con vectores
+-/
+instance : Add R2 where
+  add := MyR2.add
+
+instance : SMul ℝ R2 where
+  smul := MyR2.smul
+
+instance : Neg R2 where
+  neg := MyR2.neg
+
+instance : Zero R2 where
+  zero := MyR2.zero
+
+
 protected theorem add_assoc (a b c : R2) :
-    add (add a b) c = add a (add b c) := by
-  simp only [add]
-  ext <;> dsimp
+    (a + b) + c = a + (b + c) := by
+  ext
   . exact add_assoc a.x b.x c.x
   . exact add_assoc a.y b.y c.y
 
-protected theorem add_comm (a b : R2) : add a b = add b a := by
-  rw [add, add]
-  ext <;> dsimp
+protected theorem add_comm (a b : R2) : a + b = b + a := by
+  ext
   repeat' apply add_comm
 
-protected theorem zero_add (a : R2) : add zero a = a := by
-  rw [add]
-  ext <;> dsimp
+protected theorem zero_add (a : R2) : 0 + a = a := by
+  ext
   repeat' apply zero_add
 
-protected theorem add_zero (a : R2) : add a zero = a := by
-  rw [add]
-  ext <;> dsimp
+protected theorem add_zero (a : R2) : a + 0 = a := by
+  ext
   repeat' apply add_zero
 
-def nsmul := fun (n : ℕ) ↦ fun (a : R2) ↦ smul ↑n a
+protected theorem add_left_neg (a : R2) : -a + a = 0 := by
+  ext
+  repeat' apply add_left_neg
 
 protected theorem nsmul_zero : ∀ a, nsmul 0 a = zero := by
   intro a
@@ -86,8 +107,28 @@ protected theorem nsmul_succ :
   ext <;> dsimp
   repeat' rw [Nat.cast_succ, add_mul, one_mul]
 
+protected theorem zsmul_zero' : ∀ a, zsmul 0 a = zero := by
+  intro a
+  rw [zsmul, smul]
+  ext <;> dsimp
+  repeat (first | rw [Int.cast_zero] | apply zero_mul)
 
-instance : AddCommMonoid R2 where
+protected theorem zsmul_succ' :
+    ∀ (n : ℕ) (a : R2), zsmul (Int.ofNat n.succ) a = add (zsmul (Int.ofNat n) a)  a := by
+  intro n a
+  simp only [zsmul, smul, add]
+  ext <;> dsimp
+  repeat' rw [Nat.cast_succ,Int.cast_add,Int.cast_one,add_mul,one_mul]
+
+protected theorem zsmul_neg' :
+    ∀ (n : ℕ) (a : R2), zsmul (Int.negSucc n) a = neg (zsmul (↑n.succ) a) := by
+  intro n a
+  simp only [zsmul, smul, neg]
+  ext <;> dsimp
+  repeat' rw [Int.negSucc_coe, Int.cast_neg, neg_mul]
+
+
+instance : AddCommGroup R2 where
   add := MyR2.add
   add_assoc := MyR2.add_assoc
   zero := MyR2.zero
@@ -97,39 +138,39 @@ instance : AddCommMonoid R2 where
   nsmul := MyR2.nsmul
   nsmul_zero := MyR2.nsmul_zero
   nsmul_succ := MyR2.nsmul_succ
+  neg := MyR2.neg
+  zsmul := MyR2.zsmul
+  zsmul_zero' := MyR2.zsmul_zero'
+  zsmul_succ' := MyR2.zsmul_succ'
+  zsmul_neg' := MyR2.zsmul_neg'
+  add_left_neg := MyR2.add_left_neg
 
 
-protected theorem one_smul (a : R2) : smul (1 : ℝ) a = a := by
-  rw [smul]
-  ext <;> dsimp
+protected theorem one_smul (a : R2) : (1 : ℝ) • a = a := by
+  ext
   repeat' apply one_mul
 
 protected theorem mul_smul (r s : ℝ) (a : R2) :
-    smul (r * s) a = smul r (smul s  a) := by
-  simp only [smul]
-  ext <;> dsimp
+    (r * s) • a = r • (s • a) := by
+  ext
   repeat' apply mul_assoc
 
-protected theorem smul_zero (r : ℝ) : smul r zero = zero := by
-  rw [smul]
-  ext <;> dsimp
+protected theorem smul_zero (r : ℝ) : r • (0 : R2) = 0 := by
+  ext
   repeat' apply mul_zero
 
 protected theorem smul_add (r : ℝ) (a b : R2) :
-    smul r (add a b) = add (smul r a) (smul r b) := by
-  simp only [add, smul]
-  ext <;> dsimp
+    r • (a + b) = (r • a) + (r • b) := by
+  ext
   repeat' apply mul_add
 
 protected theorem add_smul (r s : ℝ) (a : R2) :
-    smul (r + s) a = add (smul r a) (smul s a) := by
-  simp only [smul, add]
-  ext <;> dsimp
+    (r + s) • a = (r • a) + (s • a) := by
+  ext
   repeat' apply add_mul
 
-protected theorem zero_smul (a : R2) : smul (0 : ℝ) a = zero := by
-  simp only [smul]
-  ext <;> dsimp
+protected theorem zero_smul (a : R2) : (0 : ℝ) • a = 0 := by
+  ext
   repeat' apply zero_mul
 
 
@@ -147,14 +188,30 @@ instance : Module ℝ R2 where
 end MyR2
 
 
---Theorem 1.1 (Cancelation Law for Vector Adition)
+--Theorem 1.1 (Ley de cancelación para la suma)
 example (x y z : V) (h : x + z = y + z) : x = y := by
   apply add_right_cancel h
 
---Corolario 1 (The vector 0 in unique)
+--Corolario 1 (El vector 0 es único)
 example (x : V) (h : ∀ (y : V), y + x = y) : x = 0 := by
   calc
     x = 0 + x := by rw [zero_add]
     _ = 0     := by rw [(h 0)]
 
---Corollary 2 (Aditive inverse is unique)
+--Corollary 2 (Los inversos aditivos son únicos)
+example (x y : V) (h : x + y = 0) : y = -x := by
+  exact (neg_eq_of_add_eq_zero_right h).symm
+
+--Theorem 1.2
+--(a) 0x = 0
+example (x : V) : (0 : R) • x = 0 := by
+  exact zero_smul R x
+
+--(b) (-r)x = -(rx) = r(-x)
+example (x : V) (r : R) : (-r) • x = -(r • x) := by sorry
+
+example (x : V) (r : R) : -(r • x) = r • -x := by sorry
+
+--(c) r0 = 0
+example (r : R) : r • (0 : V) = 0 := by
+  exact smul_zero r

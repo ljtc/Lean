@@ -187,7 +187,7 @@ example (h : p → q) (hp : p) : q := by
   apply h hp
 
 example (h : ∀ x, a x) : a w := by
-  apply h w
+  apply h
 
 example (h : ¬p) (hp : p) : False := by
   apply h hp
