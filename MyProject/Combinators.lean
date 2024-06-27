@@ -64,3 +64,33 @@ pasar a lo siguiente
 -/
 example (p q r : Prop) (hp : p) (hq : q) (hr : r) : p ∧ q ∧ r := by
   constructor <;> (try constructor) <;> assumption
+
+
+
+/-
+Otras formas de cerrar muchos goals es con `all_goals`. Sólo funciona
+cuando todos los goals se resuelven usanto la misma táctica
+-/
+example (p q : Prop) (hp : p) (hq : q) : p ∧ q := by
+  constructor
+  all_goals assumption
+/-
+Por ejemplo, el siguiente código falla
+example (p q : Prop) (hp : p) : p ∧ q := by
+  constructor
+  all_goals assumption
+-/
+
+
+
+/-
+Para evitar que Lean mande un error en situaciones como la anterior y
+poder seguir avanzando está `any_goals`. Es como `all_goals` pero no
+falla si no puede cerrar todos los goals. En el siguiente ejemplo
+cierra dos goals y deja dos para demostrar
+-/
+example (p q r: Prop) (hp : p) : (p ∧ q) ∧ (p ∧ r) := by
+  constructor <;> (try constructor)
+  any_goals assumption
+  . sorry
+  . sorry
