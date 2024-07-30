@@ -4,9 +4,10 @@ import Mathlib.Data.Set.Lattice
 import Mathlib.Data.Nat.Prime
 import Mathlib.Data.Nat.Parity
 import Mathlib.Data.Real.Basic
+import Mathlib.Tactic.ByContra
 
 variable( α : Type)
-variable (A B C p q r: Prop)
+variable (A B C D P p q r: Prop)
 variable (F G: α → Prop)
 
 example: (∃x, F x →B) → ((∀x, F x)→B):= by
@@ -102,7 +103,7 @@ example: A ∧ (B ∨ C) ↔ (A ∧ B) ∨ (A ∧ C):=
   (fun ABC => (ABC.right).elim (fun b => Or.inl (And.intro (ABC.left) b)) (fun c => Or.inr (And.intro (ABC.left) c)))
   (fun ABAC => And.intro (ABAC.elim (fun AB => AB.left) (fun AC => AC.left)) (ABAC.elim (fun AB => Or.inl AB.right) (fun AC => Or.inr AC.right)))
 
-example: A ∧ (B ∨ C) ↔ (A ∧ B) ∨ (A ∧ C):= by
+theorem ayos: A ∧ (B ∨ C) ↔ (A ∧ B) ∨ (A ∧ C):= by
   constructor
   . rintro ⟨a,(b|c)⟩
     . left
@@ -199,8 +200,12 @@ example: ¬(A ∨ B) ↔ ¬A ∧ ¬B:=
 example: ¬(A ∨ B) ↔ ¬A ∧ ¬B:= by
   constructor
   . push_neg at *
-    trivial
-  . intro ⟨na,nb⟩
+    intro naynb
+    assumption
+  . by_contra! h
+    apply ayos h
+
+
 
 example: ¬A ∨ ¬B → ¬(A ∧ B):=
   fun AB => fun ab => AB.elim (fun a => a ab.left) (fun b => b ab.right)
@@ -483,3 +488,20 @@ end
 example (a b c : ℝ):  a * b * c = b * (a * c) := by
   rw [mul_comm a b]
   rw [mul_assoc b a c]
+
+example: (A → (B → (C ∨ D)) ∧ ((P ∧ ¬C) → B)) → ¬C → (A→ (P→ D)):=
+  fun h => fun nc => fun a => fun p =>
+  (((h a).left) (((h a).right) (And.intro (p) (nc)))).elim
+    (fun c => False.elim (nc c))
+    (fun d => d)
+
+example: (A → (B → (C ∨ D)) ∧ ((P ∧ ¬C) → B)) → ¬C → (A→ (P→ D)):= by
+  intro h nc a p
+  obtain ⟨_,h2⟩ := h a
+  obtain b := h2 ⟨p, nc⟩
+  obtain (c|d) := (h a).left b
+  . exact False.elim (nc c)
+  . exact d
+
+example: ((A∨B)→ C)→ ((B∨ C)→ D) → (A∨ B)→ D:=
+  fun h => fun h1 => fun aob => (Or.elim aob () ()) (h aob)
